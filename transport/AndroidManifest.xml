@@ -4,8 +4,7 @@
 
     <uses-sdk android:targetSdkVersion="11"/>
 
-  <application android:icon="@drawable/icon" android:label="@string/app_name">
-  </application>
+    <application android:icon="@drawable/icon" android:label="Transport apklib">
+    </application>
 
 </manifest>
-

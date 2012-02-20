@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="bratseth.maja.androidtest" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
+  package="bratseth.maja.androidtest.server" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
 
     <uses-sdk android:targetSdkVersion="11"/>
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
+    <application android:icon="@drawable/icon" android:label="AIDL Server">
+        <service android:name=".TransportServiceProvider"
+                 android:exported="true"
+                android:process=":remote">
+            <intent-filter>
+                <action android:name="bratseth.maja.androidtest.service.TransportService"></action>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
