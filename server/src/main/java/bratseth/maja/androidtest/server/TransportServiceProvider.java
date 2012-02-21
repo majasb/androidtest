@@ -12,6 +12,7 @@ public class TransportServiceProvider extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        // this would be done in another service
         ServiceRegistry.get().register(CustomerService.class, new CustomerServiceImpl());
 
         return new TransportServiceImpl();
