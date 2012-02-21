@@ -26,9 +26,9 @@
             <type>apklib</type>
         </dependency>
         <dependency>
-          <groupId>android</groupId>
+            <groupId>com.google.android</groupId>
           <artifactId>android</artifactId>
-          <version>3.0_r2</version>
+          <version>3.0</version>
           <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -47,7 +47,6 @@
                     <sdk>
                         <platform>7</platform>
                     </sdk>
-                    <deleteConflictingFiles>true</deleteConflictingFiles>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
                 <extensions>true</extensions>
