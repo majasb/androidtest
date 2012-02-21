@@ -37,9 +37,8 @@ public class TransportServiceImpl extends TransportService.Stub {
     }
 
     private Object invokeService(Invocation invocation) throws Throwable {
-        Class serviceType = Class.forName(invocation.getServiceType());
-        Method method = findMethod(serviceType, invocation);
-        Object service = findService(serviceType);
+        Method method = findMethod(invocation);
+        Object service = findService(invocation.getServiceType());
         if (service == null) {
             throw new IllegalArgumentException("No such service: " + invocation.getServiceType());
         }
@@ -54,14 +53,8 @@ public class TransportServiceImpl extends TransportService.Stub {
         return ServiceRegistry.get().locate(serviceType);
     }
 
-    private Method findMethod(Class serviceType, Invocation invocation) throws Exception {
-        final String[] parameterClassNames = invocation.getParameterClasses();
-        final int length = parameterClassNames.length;
-        Class[] parameterTypes = new Class[length];
-        for (int i = 0; i < length; i++) {
-            parameterTypes[i] = Class.forName(parameterClassNames[i]);
-        }
-        return serviceType.getMethod(invocation.getMethodName(), parameterTypes);
+    private Method findMethod(Invocation invocation) throws Exception {
+        return invocation.getServiceType().getMethod(invocation.getMethodName(), invocation.getParameterClasses());
     }
 
 }

@@ -33,12 +33,7 @@ public class ClientServiceLocator implements ServiceLocator {
     }
 
     private Invocation toInvocation(Method method, Object[] parameters, Class type) {
-        Class[] parameterTypes = method.getParameterTypes();
-        String[] parameterClassNames = new String[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            parameterClassNames[i] = parameterTypes[i].getName();
-        }
-        return new Invocation(type.getName(), method.getName(), parameterClassNames, parameters);
+        return new Invocation(type, method.getName(), method.getParameterTypes(), parameters);
     }
 
     private InvocationResult invokeRemoteService(Invocation invocation) throws Exception {

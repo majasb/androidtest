@@ -7,19 +7,19 @@ import java.io.Serializable;
  */
 public class Invocation implements Serializable {
     
-    private final String serviceType;
+    private final Class serviceType;
     private final String methodName;
-    private final String[] parameterClasses;
+    private final Class[] parameterClasses;
     private final Object[] parameters;
 
-    public Invocation(String serviceType, String methodName, String[] parameterClasses, Object[] parameters) {
+    public Invocation(Class serviceType, String methodName, Class[] parameterClasses, Object[] parameters) {
         this.serviceType = serviceType;
         this.methodName = methodName;
         this.parameterClasses = parameterClasses;
         this.parameters = parameters;
     }
 
-    public String getServiceType() {
+    public Class getServiceType() {
         return serviceType;
     }
 
@@ -27,7 +27,7 @@ public class Invocation implements Serializable {
         return methodName;
     }
 
-    public String[] getParameterClasses() {
+    public Class[] getParameterClasses() {
         return parameterClasses;
     }
 
