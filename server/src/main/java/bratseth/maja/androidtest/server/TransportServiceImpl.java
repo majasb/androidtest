@@ -1,13 +1,17 @@
 package bratseth.maja.androidtest.server;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.os.RemoteException;
 import android.util.Log;
 import bratseth.maja.androidtest.service.Invocation;
 import bratseth.maja.androidtest.service.InvocationResult;
 import bratseth.maja.androidtest.service.Serializer;
+import bratseth.maja.androidtest.service.TransportListener;
 import bratseth.maja.androidtest.service.TransportService;
 
 /**
@@ -16,6 +20,7 @@ import bratseth.maja.androidtest.service.TransportService;
 public class TransportServiceImpl extends TransportService.Stub {
     
     private final String tag = getClass().getSimpleName();
+    private List<TransportListener> listeners = new LinkedList<TransportListener>();
 
     @Override
     public byte[] invoke(byte[] invocation) throws RemoteException {
@@ -34,6 +39,11 @@ public class TransportServiceImpl extends TransportService.Stub {
                 return msg.getBytes();
             }
         }
+    }
+
+    @Override
+    public void register(TransportListener listener) throws RemoteException {
+        listeners.add(listener);
     }
 
     private Object invokeService(Invocation invocation) throws Throwable {
@@ -57,4 +67,11 @@ public class TransportServiceImpl extends TransportService.Stub {
         return invocation.getServiceType().getMethod(invocation.getMethodName(), invocation.getParameterClasses());
     }
 
+    public void publish(Serializable e) throws Exception {
+        final Serializer serializer = Serializer.get();
+        byte[] bytes = serializer.writeObject(e);
+        for (TransportListener listener : listeners) {
+            listener.notify(bytes);
+        }
+    }
 }

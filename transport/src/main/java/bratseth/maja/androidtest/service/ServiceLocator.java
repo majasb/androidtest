@@ -7,4 +7,5 @@ public interface ServiceLocator {
     
     <T> T locate(Class<T> type);
 
+    void addEventListener(ClientEventListener listener);
 }

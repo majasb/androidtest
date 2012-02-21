@@ -3,6 +3,7 @@ package bratseth.maja.androidtest.server;
 import java.util.*;
 
 import bratseth.maja.androidtest.spi.Customer;
+import bratseth.maja.androidtest.spi.CustomerEvent;
 import bratseth.maja.androidtest.spi.CustomerId;
 import bratseth.maja.androidtest.spi.CustomerService;
 
@@ -24,6 +25,13 @@ public class CustomerServiceImpl implements CustomerService {
             throw new IllegalArgumentException("No such customer: " + customerId);
         }
         return customers.get(customerId);
+    }
+
+    @Override
+    public void publishSomething() {
+        CustomerId id = new CustomerId("2");
+        CustomerEvent e = new CustomerEvent(id);
+        EventPublisher.get().publish(e);
     }
 
 }

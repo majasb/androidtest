@@ -4,15 +4,20 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import android.os.RemoteException;
+
 /**
  * @author Maja S Bratseth
  */
 public class ClientServiceLocator implements ServiceLocator {
 
     private final TransportService transportService;
+    private final ServiceEventListener serviceListener;
 
     public ClientServiceLocator(TransportService transportService) {
         this.transportService = transportService;
+        serviceListener = new ServiceEventListener();
+        registerServiceListener();
     }
 
     @Override
@@ -32,6 +37,11 @@ public class ClientServiceLocator implements ServiceLocator {
         return type.cast(proxy);
     }
 
+    @Override
+    public void addEventListener(ClientEventListener listener) {
+        serviceListener.add(listener);
+    }
+
     private Invocation toInvocation(Method method, Object[] parameters, Class type) {
         return new Invocation(type, method.getName(), method.getParameterTypes(), parameters);
     }
@@ -41,6 +51,14 @@ public class ClientServiceLocator implements ServiceLocator {
         byte[] invocationBytes = serializer.writeObject(invocation);
         final byte[] resultBytes = transportService.invoke(invocationBytes);
         return (InvocationResult) serializer.readObject(resultBytes);
+    }
+    
+    private void registerServiceListener() {
+        try {
+            transportService.register(serviceListener);
+        } catch (RemoteException e) {
+            throw new RuntimeException("Unable to register event listener", e);
+        }
     }
 
 }

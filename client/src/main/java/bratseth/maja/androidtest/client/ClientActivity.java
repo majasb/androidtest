@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.*;
 import bratseth.maja.androidtest.spi.Customer;
+import bratseth.maja.androidtest.spi.CustomerEvent;
 import bratseth.maja.androidtest.spi.CustomerId;
 import bratseth.maja.androidtest.spi.CustomerService;
 
@@ -26,6 +27,8 @@ public class ClientActivity extends Activity {
     private TextView customerView;
     private Button button;
     private Button errorButton;
+    private Button eventButton;
+    private ClientEventListener listener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,10 @@ public class ClientActivity extends Activity {
         errorButton.setText("Load customer with error");
         main.addView(errorButton);
         
+        eventButton = new Button(this);
+        eventButton.setText("Publish customer event");
+        main.addView(eventButton);
+
         customerView = new TextView(this);
         customerView.setText("No customer yet");
         main.addView(customerView);
@@ -49,6 +56,7 @@ public class ClientActivity extends Activity {
         final ServiceConnection connection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 serviceLocator = new ClientServiceLocator(TransportService.Stub.asInterface(service));
+                serviceLocator.addEventListener(listener);
                 customerService = serviceLocator.locate(CustomerService.class);
             }
             public void onServiceDisconnected(ComponentName className) {
@@ -69,6 +77,14 @@ public class ClientActivity extends Activity {
                 new CustomerLoader().execute(new CustomerId("2"));
             }
         });
+        eventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new CustomerTrigger().execute();
+            }
+        });
+
+        listener = new CustomerEventListener();
     }
 
     private class CustomerLoader extends AsyncTask<CustomerId, Void, Customer> {
@@ -94,4 +110,21 @@ public class ClientActivity extends Activity {
         }
     }
 
+    private class CustomerTrigger extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            customerService.publishSomething();
+            return null;
+        }
+    }
+
+    private class CustomerEventListener implements ClientEventListener {
+        @Override
+        public void notify(Object e) {
+            if (e instanceof CustomerEvent) {
+                CustomerEvent event = (CustomerEvent) e;
+                Log.d("cisco", "Got customer event " + event);
+            }
+        }
+    }
 }
