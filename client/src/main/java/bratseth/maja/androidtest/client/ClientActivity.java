@@ -1,5 +1,7 @@
 package bratseth.maja.androidtest.client;
 
+import static bratseth.maja.androidtest.client.StopWatch.*;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,6 +10,7 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.*;
+import bratseth.maja.androidtest.service.aidl.AidlCustomer;
+import bratseth.maja.androidtest.service.aidl.AidlCustomerId;
+import bratseth.maja.androidtest.service.aidl.AidlCustomerService;
 import bratseth.maja.androidtest.spi.Customer;
 import bratseth.maja.androidtest.spi.CustomerEvent;
 import bratseth.maja.androidtest.spi.CustomerId;
@@ -28,7 +34,13 @@ public class ClientActivity extends Activity {
     private Button button;
     private Button errorButton;
     private Button eventButton;
+    private Button benchButton;
+    private Button aidlBenchButton;
     private ClientEventListener listener;
+    private AidlCustomerService aidlService;
+    private int n = 10;
+    private Button latencyJavaButton;
+    private Button latencyAidlButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +60,22 @@ public class ClientActivity extends Activity {
         eventButton.setText("Publish customer event");
         main.addView(eventButton);
 
+        benchButton = new Button(this);
+        benchButton.setText("Benchmark customer pull (java serialization)");
+        main.addView(benchButton);
+
+        aidlBenchButton = new Button(this);
+        aidlBenchButton.setText("Benchmark customer pull (aidl)");
+        main.addView(aidlBenchButton);
+
+        latencyJavaButton = new Button(this);
+        latencyJavaButton.setText("Latency (java serialization)");
+        main.addView(latencyJavaButton);
+
+        latencyAidlButton = new Button(this);
+        latencyAidlButton.setText("Latency (aidl)");
+        main.addView(latencyAidlButton);
+
         customerView = new TextView(this);
         customerView.setText("No customer yet");
         main.addView(customerView);
@@ -63,8 +91,18 @@ public class ClientActivity extends Activity {
                 finish();
             }
         };
-        bindService(new Intent(TransportService.class.getName()), connection, Context.BIND_AUTO_CREATE);
+        ServiceConnection plainConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                aidlService = AidlCustomerService.Stub.asInterface(iBinder);
+            }
 
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        };
+        bindService(new Intent(TransportService.class.getName()), connection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent("bratseth.maja.androidtest.service.PlainService"), plainConnection, Context.BIND_AUTO_CREATE);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,6 +119,62 @@ public class ClientActivity extends Activity {
             @Override
             public void onClick(View view) {
                 new CustomerTrigger().execute();
+            }
+        });
+        benchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CustomerId id = new CustomerId("1");
+                StopWatch watch = new StopWatch();
+                watch.start();
+                for (int i=0; i< n; i++) {
+                    Customer customer = customerService.getCustomer(id);
+                }
+                Duration duration = watch.stop();
+                Log.d("benching", "Serializable: Took " + duration.toMillies() + "ms to call getCustomer " + n + " times");
+            }
+        });
+        aidlBenchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AidlCustomerId id = new AidlCustomerId("1");
+                StopWatch watch = new StopWatch();
+                watch.start();
+                for (int i=0; i< n; i++) {
+                    try {
+                        AidlCustomer customer = aidlService.getCustomer(id);
+                    } catch (RemoteException e) {
+                        Log.e("benching", "Error calling aidl service", e);
+                    }
+                }
+                Duration duration = watch.stop();
+                Log.d("benching", "AIDL: Took " + duration.toMillies() + "ms to call getCustomer " + n + " times");
+            }
+        });
+        latencyJavaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CustomerId id = new CustomerId("1");
+                StopWatch watch = new StopWatch();
+                watch.start();
+                long endTime = customerService.latencyTest(id);
+                Duration duration = watch.stop(endTime);
+                Log.d("benching", "Latency Java Serialization: " + duration.pretty() + " on method with one CustomerId parameter");
+            }
+        });
+        latencyAidlButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AidlCustomerId id = new AidlCustomerId("1");
+                StopWatch watch = new StopWatch();
+                watch.start();
+                try {
+                    long endTime = aidlService.latencyTest(id);
+                    Duration duration = watch.stop(endTime);
+                    Log.d("benching", "Latency Aidl: " + duration.pretty() + " on method with one AidlCustomerId parameter");
+                } catch (RemoteException e) {
+                    Log.e("benching", "Error calling method", e);
+                }
             }
         });
 

@@ -12,6 +12,11 @@
                 <action android:name="bratseth.maja.androidtest.service.TransportService"></action>
             </intent-filter>
         </service>
+        <service android:name=".PlainAidl">
+            <intent-filter>
+                <action android:name="bratseth.maja.androidtest.service.PlainService"></action>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

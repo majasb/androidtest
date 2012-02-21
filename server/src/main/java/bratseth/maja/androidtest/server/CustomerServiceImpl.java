@@ -34,4 +34,9 @@ public class CustomerServiceImpl implements CustomerService {
         EventPublisher.get().publish(e);
     }
 
+    @Override
+    public long latencyTest(CustomerId customerId) {
+        return System.nanoTime();
+    }
+
 }
