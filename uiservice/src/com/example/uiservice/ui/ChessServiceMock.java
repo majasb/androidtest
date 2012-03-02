@@ -36,13 +36,6 @@ public class ChessServiceMock implements ChessService {
         }
     }
 
-    private Board invokeStartGame() {
-        clear();
-        moveTo(new Position('a', 1), new Piece(Color.RED));
-        moveTo(new Position('h', 8), gamePiece);
-        return createBoard();
-    }
-
     public void move(Piece piece, Position position, ResultHandler<Board> resultHandler) {
         try {
             final Board board = invokeMove(piece, position);
@@ -58,6 +51,13 @@ public class ChessServiceMock implements ChessService {
 
     public void endGame() {
         clear();
+    }
+
+    private Board invokeStartGame() {
+         clear();
+         moveTo(new Position('a', 1), new Piece(Color.RED));
+         moveTo(new Position('h', 8), gamePiece);
+         return createBoard();
     }
 
     private void clear() {
