@@ -5,25 +5,25 @@ package com.example.uiservice.spi;
  */
 public class Position {
 
-    private String x;
-    private String y;
+    private char x;
+    private int y;
 
-    public Position(String x, String y) {
+    public Position(char x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public String getX() {
+    public char getX() {
         return x;
     }
 
-    public String getY() {
+    public int getY() {
         return y;
     }
     
     @Override
     public String toString() {
-        return x + y;
+        return ("" + x) + y;
     }
 
     @Override
@@ -37,10 +37,10 @@ public class Position {
 
         Position position = (Position) o;
 
-        if (!x.equals(position.x)) {
+        if (x != position.x) {
             return false;
         }
-        if (!y.equals(position.y)) {
+        if (y != position.y) {
             return false;
         }
 
@@ -49,8 +49,8 @@ public class Position {
 
     @Override
     public int hashCode() {
-        int result = x.hashCode();
-        result = 31 * result + y.hashCode();
+        int result = (int) x;
+        result = 31 * result + y;
         return result;
     }
 }

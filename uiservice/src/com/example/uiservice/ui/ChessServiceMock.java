@@ -38,8 +38,8 @@ public class ChessServiceMock implements ChessService {
 
     private Board invokeStartGame() {
         clear();
-        moveTo(new Position("a", "1"), new Piece(Color.RED));
-        moveTo(new Position("h", "8"), gamePiece);
+        moveTo(new Position('a', 1), new Piece(Color.RED));
+        moveTo(new Position('h', 8), gamePiece);
         return createBoard();
     }
 
@@ -75,20 +75,18 @@ public class ChessServiceMock implements ChessService {
     }
 
     private void moveGamePiece() {
-        Position oldPosition = piece2Position.get(gamePiece);
-        final String newX;
-        final String newY;
-        if (oldPosition.getX().charAt(0) < 'h') {
-            newX = "" + (char) (oldPosition.getX().charAt(0) + 1);
-        } else {
-            newX = "" + (char) (oldPosition.getX().charAt(0) - 1);
+        Position newPosition = findNewPosition();
+        while (position2Piece.containsKey(newPosition)) {
+            newPosition = findNewPosition();
         }
-        if (oldPosition.getY().charAt(0) < '8') {
-            newY = String.valueOf(Integer.parseInt(oldPosition.getY()) + 1);
-        } else {
-            newY = String.valueOf(Integer.parseInt(oldPosition.getY()) - 1);
-        }
-        moveTo(new Position(newX, newY), gamePiece);
+        moveTo(newPosition, gamePiece);
+    }
+
+    private Position findNewPosition() {
+        Random random = new Random();
+        char newX = (char) (random.nextInt((int) ('h' - 'a')) + 'a');
+        int newY = random.nextInt(8 - 1) + 1;
+        return new Position(newX, newY);
     }
 
     private void moveTo(Position position, Piece piece) {

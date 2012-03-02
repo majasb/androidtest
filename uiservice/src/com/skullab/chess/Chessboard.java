@@ -448,7 +448,7 @@ public class Chessboard extends LinearLayout {
 	}
 
 	public void setDrawableOnCell(Position position, ColorDrawable drawable) {
-		ImageView v = getViewFromNotation(position.getX() + position.getY());
+		ImageView v = getViewFromNotation(("" + position.getX()) + position.getY());
 		v.setImageDrawable(drawable);
 	}
 
@@ -487,7 +487,7 @@ public class Chessboard extends LinearLayout {
 					String notation = getContext().getResources().getResourceEntryName(v.getId());
                     String x = notation.substring(0, 1);
                     String y = notation.substring(1, 2);
-                    if(mListener != null)mListener.onCellClick(new Position(x, y));
+                    if(mListener != null)mListener.onCellClick(new Position(x.charAt(0), Integer.parseInt(y)));
 				}
 			});
 		}
