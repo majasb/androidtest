@@ -32,6 +32,7 @@ public class ChessActivity extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 chessService.startGame(new ResultHandler<Board>() {
+                    @Override
                     public void result(Board board) {
                         selectedPiece = null;
                         setBoard(board);
@@ -58,6 +59,7 @@ public class ChessActivity extends Activity {
                     }
                 } else {
                     chessService.move(selectedPiece, position, new ResultHandler<Board>() {
+                        @Override
                         public void result(Board updatedBoard) {
                             setBoard(updatedBoard);
                             selectedPiece = null;
