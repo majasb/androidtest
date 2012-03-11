@@ -10,48 +10,12 @@
     </parent>
 
     <artifactId>uiservice</artifactId>
-    <packaging>apk</packaging>
+    <packaging>pom</packaging>
     <name>uiservice</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>transport</artifactId>
-            <version>${project.version}</version>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>${android.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>android-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <sdk>
-                        <platform>11</platform>
-                    </sdk>
-                    <undeployBeforeDeploy>true</undeployBeforeDeploy>
-                </configuration>
-                <extensions>true</extensions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    
+    <modules>
+      <module>gameclient</module>
+      <module>gameserver</module>
+    </modules>
+    
 </project>

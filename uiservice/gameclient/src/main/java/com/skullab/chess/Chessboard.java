@@ -31,7 +31,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import com.example.uiservice.R;
+import com.example.uiservice.gameclient.R;
 import com.example.uiservice.spi.Position;
 
 /**

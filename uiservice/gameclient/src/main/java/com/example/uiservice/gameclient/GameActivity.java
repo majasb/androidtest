@@ -1,4 +1,4 @@
-package com.example.uiservice.ui;
+package com.example.uiservice.gameclient;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import bratseth.maja.androidtest.service.ui.ServiceActivity;
-import com.example.uiservice.R;
 import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 import com.skullab.chess.Chessboard;
