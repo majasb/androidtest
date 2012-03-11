@@ -9,6 +9,7 @@ import android.widget.Button;
 import com.example.uiservice.R;
 import com.example.uiservice.service.ResultHandler;
 import com.example.uiservice.spi.*;
+import com.example.uiservice.ui.spi.mock.GameServiceMock;
 import com.skullab.chess.Chessboard;
 
 public class GameActivity extends Activity {
@@ -17,39 +18,25 @@ public class GameActivity extends Activity {
     private GameState gameState;
     private Chessboard board;
     private Piece selectedPiece;
+    private Button startButton;
+    private Button endButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ViewGroup main = (ViewGroup) View.inflate(this, R.layout.main, null);
-        setContentView(main);
+        init();
 
-        board = (Chessboard) main.findViewById(R.id.chess);
-        board.setVisibility(View.INVISIBLE);
-        final Button startButton = (Button) main.findViewById(R.id.startButton);
-        final Button endButton = (Button) main.findViewById(R.id.endButton);
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                gameService.startGame(new ResultHandler<GameState>() {
-                    @Override
-                    public void result(GameState gameState) {
-                        selectedPiece = null;
-                        setGameState(gameState);
-                        board.setVisibility(View.VISIBLE);
-                    }
-                });
+                startGame();
             }
         });
         endButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                board.setVisibility(View.INVISIBLE);
-                gameService.endGame();
+                endGame();
             }
         });
-
-        gameService = getGameService();
-
 
         board.setOnCellClickListener(new Chessboard.OnCellClickListener() {
             public void onCellClick(Position position) {
@@ -59,16 +46,48 @@ public class GameActivity extends Activity {
                     }
                 }
                 else {
-                    gameService.move(selectedPiece, position, new ResultHandler<GameState>() {
-                        @Override
-                        public void result(GameState updatedGameState) {
-                            setGameState(updatedGameState);
-                            selectedPiece = null;
-                        }
-                    });
+                    makeMove(position);
                 }
             }
         });
+    }
+
+    private void startGame() {
+        gameService.startGame(new ResultHandler<GameState>() {
+            @Override
+            public void result(GameState gameState) {
+                selectedPiece = null;
+                setGameState(gameState);
+                board.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void endGame() {
+        board.setVisibility(View.INVISIBLE);
+        gameService.endGame();
+    }
+
+    private void makeMove(Position newPosition) {
+        gameService.move(selectedPiece, newPosition, new ResultHandler<GameState>() {
+            @Override
+            public void result(GameState updatedGameState) {
+                setGameState(updatedGameState);
+                selectedPiece = null;
+            }
+        });
+    }
+
+    private void init() {
+        final ViewGroup main = (ViewGroup) View.inflate(this, R.layout.main, null);
+        setContentView(main);
+
+        board = (Chessboard) main.findViewById(R.id.chess);
+        board.setVisibility(View.INVISIBLE);
+        startButton = (Button) main.findViewById(R.id.startButton);
+        endButton = (Button) main.findViewById(R.id.endButton);
+
+        gameService = getGameService();
     }
 
     private void updateUi() {

@@ -1,4 +1,4 @@
-package com.example.uiservice.ui;
+package com.example.uiservice.spi;
 
 import com.example.uiservice.service.ResultHandler;
 import com.example.uiservice.spi.GameState;

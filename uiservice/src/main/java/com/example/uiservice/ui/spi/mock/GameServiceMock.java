@@ -1,4 +1,4 @@
-package com.example.uiservice.ui;
+package com.example.uiservice.ui.spi.mock;
 
 import java.util.*;
 
