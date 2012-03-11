@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import bratseth.maja.androidtest.service.ClientServiceLocator;
+import bratseth.maja.androidtest.service.JavaSerializationSerializer;
 import bratseth.maja.androidtest.service.ServiceLocator;
 import bratseth.maja.androidtest.service.TransportService;
 
@@ -24,7 +25,9 @@ public abstract class ServiceActivity extends Activity {
 
         final ServiceConnection connection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
-                serviceLocator = new ClientServiceLocator(TransportService.Stub.asInterface(service));
+                serviceLocator = new ClientServiceLocator(getApplicationContext(),
+                                                          TransportService.Stub.asInterface(service),
+                                                          new JavaSerializationSerializer());
             }
             public void onServiceDisconnected(ComponentName className) {
                 finish();

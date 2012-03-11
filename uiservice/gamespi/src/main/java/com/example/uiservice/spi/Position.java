@@ -1,9 +1,11 @@
 package com.example.uiservice.spi;
 
+import java.io.Serializable;
+
 /**
  * @author Maja S Bratseth
  */
-public class Position {
+public class Position implements Serializable {
 
     private char x;
     private int y;
@@ -53,4 +55,5 @@ public class Position {
         result = 31 * result + y;
         return result;
     }
+
 }

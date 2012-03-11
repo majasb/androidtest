@@ -51,7 +51,7 @@ public class GameActivity extends ServiceActivity {
     }
 
     private void startGame() {
-        gameService.startGame(new ResultHandlerBase<GameState>() {
+        getGameService().startGame(new ResultHandlerBase<GameState>() {
             @Override
             public void result(GameState gameState) {
                 selectedPiece = null;
@@ -63,11 +63,11 @@ public class GameActivity extends ServiceActivity {
 
     private void endGame() {
         board.setVisibility(View.INVISIBLE);
-        gameService.endGame();
+        getGameService().endGame();
     }
 
     private void makeMove(Position newPosition) {
-        gameService.move(selectedPiece, newPosition, new ResultHandlerBase<GameState>() {
+        getGameService().move(selectedPiece, newPosition, new ResultHandlerBase<GameState>() {
             @Override
             public void result(GameState updatedGameState) {
                 setGameState(updatedGameState);

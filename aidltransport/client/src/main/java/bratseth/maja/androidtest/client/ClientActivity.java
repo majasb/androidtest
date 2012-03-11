@@ -55,7 +55,9 @@ public class ClientActivity extends Activity {
 
         final ServiceConnection connection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
-                serviceLocator = new ClientServiceLocator(TransportService.Stub.asInterface(service));
+                serviceLocator = new ClientServiceLocator(getApplicationContext(),
+                                                          TransportService.Stub.asInterface(service),
+                                                          new JavaSerializationSerializer());
                 serviceLocator.addEventListener(listener);
                 customerService = serviceLocator.locate(CustomerService.class);
             }

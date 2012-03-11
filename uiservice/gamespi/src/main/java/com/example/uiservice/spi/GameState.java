@@ -1,11 +1,12 @@
 package com.example.uiservice.spi;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * @author Maja S Bratseth
  */
-public class GameState {
+public class GameState implements Serializable {
 
     private final int playerColor;
     private final Map<Position, Piece> occupiedPositions = new HashMap<Position, Piece>();
