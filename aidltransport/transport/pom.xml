@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>bratseth.maja.androidtest</groupId>
-        <artifactId>androidtest</artifactId>
+	<artifactId>aidltransport</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>3.0</version>
+            <version>${android.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

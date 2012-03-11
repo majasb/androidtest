@@ -5,31 +5,20 @@
 
     <parent>
         <groupId>bratseth.maja.androidtest</groupId>
-	<artifactId>aidltransport</artifactId>
+        <artifactId>androidtest</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>server</artifactId>
+    <artifactId>uiservice</artifactId>
     <packaging>apk</packaging>
-    <name>server</name>
+    <name>uiservice</name>
 
     <dependencies>
         <dependency>
-            <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>spi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>transport</artifactId>
-            <version>${project.version}</version>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-          <groupId>com.google.android</groupId>
-          <artifactId>android</artifactId>
-          <version>${android.version}</version>
-          <scope>provided</scope>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>${android.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -58,4 +47,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
