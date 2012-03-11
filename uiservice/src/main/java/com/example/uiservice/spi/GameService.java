@@ -1,9 +1,7 @@
 package com.example.uiservice.spi;
 
-import com.example.uiservice.service.ResultHandler;
-import com.example.uiservice.spi.GameState;
-import com.example.uiservice.spi.Piece;
-import com.example.uiservice.spi.Position;
+import bratseth.maja.androidtest.service.ExceptionHandler;
+import bratseth.maja.androidtest.service.ResultHandler;
 
 /**
  * @author Maja S Bratseth
@@ -14,6 +12,6 @@ public interface GameService {
 
     void move(Piece piece, Position position, ResultHandler<GameState> resultHandler);
 
-    void endGame();
+    void endGame(ExceptionHandler... exceptionHandler);
 
 }

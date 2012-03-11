@@ -6,7 +6,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.Toast;
-import com.example.uiservice.service.ResultHandler;
+import bratseth.maja.androidtest.service.ExceptionHandler;
+import bratseth.maja.androidtest.service.ResultHandler;
+import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 
 public class GameServiceMock implements GameService {
@@ -23,6 +25,7 @@ public class GameServiceMock implements GameService {
 
     // exception handling would not be in the service implementation, but in an infrastructure layer
 
+    @Override
     public void startGame(ResultHandler<GameState> resultHandler) {
         try {
             clear();
@@ -31,29 +34,37 @@ public class GameServiceMock implements GameService {
             final GameState gameState = createBoard();
             resultHandler.result(gameState);
         } catch (Exception e) {
-            try {
-                resultHandler.exception(e);
-            } catch (Exception e2) {
-                defaultHandleException(e2);
-            }
+            handleException(e, resultHandler);
         }
     }
 
+    @Override
     public void move(Piece piece, Position position, ResultHandler<GameState> resultHandler) {
         try {
             final GameState gameState = invokeMove(piece, position);
             resultHandler.result(gameState);
         } catch (Exception e) {
-            try {
-                resultHandler.exception(e);
-            } catch (Exception e2) {
-                defaultHandleException(e2);
-            }
+            handleException(e, resultHandler);
         }
     }
 
-    public void endGame() {
-        clear();
+    @Override
+    public void endGame(ExceptionHandler... exceptionHandlers) {
+        try {
+            clear();
+        } catch (Exception e) {
+            handleException(e, exceptionHandlers);
+        }
+    }
+
+    private void handleException(Exception e, ExceptionHandler... exceptionHandlers) {
+        try {
+            for (ExceptionHandler exceptionHandler : exceptionHandlers) {
+                exceptionHandler.exception(e);
+            }
+        } catch (Exception e2) {
+            defaultHandleException(e2);
+        }
     }
 
     private void clear() {

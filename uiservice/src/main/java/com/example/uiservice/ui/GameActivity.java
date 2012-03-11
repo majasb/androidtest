@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import bratseth.maja.androidtest.service.ui.ServiceActivity;
 import com.example.uiservice.R;
-import com.example.uiservice.service.ResultHandler;
+import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 import com.skullab.chess.Chessboard;
 
@@ -52,7 +52,7 @@ public class GameActivity extends ServiceActivity {
     }
 
     private void startGame() {
-        gameService.startGame(new ResultHandler<GameState>() {
+        gameService.startGame(new ResultHandlerBase<GameState>() {
             @Override
             public void result(GameState gameState) {
                 selectedPiece = null;
@@ -68,7 +68,7 @@ public class GameActivity extends ServiceActivity {
     }
 
     private void makeMove(Position newPosition) {
-        gameService.move(selectedPiece, newPosition, new ResultHandler<GameState>() {
+        gameService.move(selectedPiece, newPosition, new ResultHandlerBase<GameState>() {
             @Override
             public void result(GameState updatedGameState) {
                 setGameState(updatedGameState);

@@ -13,13 +13,13 @@ public class ClientServiceLocator implements ServiceLocator {
 
     private final TransportService transportService;
     private final ServiceEventListener serviceListener;
-    private final JavaSerializationSerializer serializer;
+    private final Serializer serializer;
 
     public ClientServiceLocator(TransportService transportService) {
         this(transportService, new JavaSerializationSerializer());
     }
 
-    public ClientServiceLocator(TransportService transportService, JavaSerializationSerializer serializer) {
+    public ClientServiceLocator(TransportService transportService, Serializer serializer) {
         this.transportService = transportService;
         this.serializer = serializer;
         serviceListener = new ServiceEventListener();
