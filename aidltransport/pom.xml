@@ -14,10 +14,11 @@
     <name>aidltransport</name>
 
     <modules>
-        <module>transport</module>
-        <module>spi</module>
-        <module>client</module>
-        <module>server</module>
+      <module>service</module>
+      <module>transport</module>
+      <module>spi</module>
+      <module>client</module>
+      <module>server</module>
     </modules>
 
 </project>

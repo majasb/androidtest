@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>bratseth.maja.androidtest</groupId>
+            <artifactId>gamespi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>bratseth.maja.androidtest</groupId>
             <artifactId>transport</artifactId>
             <version>${project.version}</version>
             <type>apklib</type>

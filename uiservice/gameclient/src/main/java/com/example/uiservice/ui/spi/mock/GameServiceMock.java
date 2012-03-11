@@ -8,7 +8,6 @@ import android.util.Log;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
-import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 
 public class GameServiceMock implements GameService {

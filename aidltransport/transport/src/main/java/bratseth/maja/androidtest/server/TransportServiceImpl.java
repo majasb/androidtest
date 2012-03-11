@@ -58,7 +58,14 @@ public class TransportServiceImpl extends TransportService.Stub {
             throw new IllegalArgumentException("No such service: " + invocation.getServiceType());
         }
         try {
-            return method.invoke(service, invocation.getParameters());
+            final Object[] parameters = invocation.getParameters();
+            final Object result = method.invoke(service, parameters);
+            // only supports one resulthandler for now
+            if (parameters.length > 0 && parameters[parameters.length - 1] instanceof ResultHandlerStub) {
+                ResultHandlerStub resultHandlerStub = (ResultHandlerStub) parameters[parameters.length - 1];
+                return resultHandlerStub.getResult(); // TODO: remove exception field, and don't need to send from client
+            }
+            return result;
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }

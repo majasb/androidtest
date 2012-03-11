@@ -7,6 +7,7 @@ import bratseth.maja.androidtest.server.EventPublisher;
 import bratseth.maja.androidtest.server.ServiceRegistry;
 import bratseth.maja.androidtest.server.TransportServiceImpl;
 import bratseth.maja.androidtest.service.JavaSerializationSerializer;
+import com.example.uiservice.spi.GameService;
 
 /**
  * @author Maja S Bratseth
@@ -22,7 +23,7 @@ public class TransportServiceProvider extends Service {
         service.setSerializer(new JavaSerializationSerializer());
 
         final ServiceRegistry serviceRegistry = new ServiceRegistry();
-        //serviceRegistry.register(GamS);
+        serviceRegistry.register(GameService.class, new GameServiceImpl());
 
         service.setServiceLocator(serviceRegistry);
 

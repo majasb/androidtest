@@ -5,18 +5,20 @@
 
     <parent>
         <groupId>bratseth.maja.androidtest</groupId>
-        <artifactId>androidtest</artifactId>
+        <artifactId>uiservice</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>uiservice</artifactId>
-    <packaging>pom</packaging>
-    <name>uiservice</name>
-    
-    <modules>
-      <module>gamespi</module>
-      <module>gameclient</module>
-      <module>gameserver</module>
-    </modules>
-    
+    <artifactId>gamespi</artifactId>
+    <packaging>jar</packaging>
+    <name>gamespi</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>bratseth.maja.androidtest</groupId>
+            <artifactId>service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
