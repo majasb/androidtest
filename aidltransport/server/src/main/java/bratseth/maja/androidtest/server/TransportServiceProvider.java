@@ -16,7 +16,14 @@ public class TransportServiceProvider extends Service {
     @Override
     public void onCreate() {
         service = new TransportServiceImpl();
+
         service.setSerializer(new JavaSerializationSerializer());
+
+        final ServiceRegistry serviceRegistry = new ServiceRegistry();
+        serviceRegistry.register(CustomerService.class, new CustomerServiceImpl());
+
+        service.setServiceLocator(serviceRegistry);
+
         EventPublisher publisher = EventPublisher.get();
         publisher.setTransport(service);
         super.onCreate();
@@ -24,8 +31,6 @@ public class TransportServiceProvider extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // this would be done in another service
-        ServiceRegistry.get().register(CustomerService.class, new CustomerServiceImpl());
         return service;
     }
 

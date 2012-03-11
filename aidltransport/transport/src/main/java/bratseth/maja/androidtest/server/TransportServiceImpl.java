@@ -18,6 +18,11 @@ public class TransportServiceImpl extends TransportService.Stub {
     private final String tag = getClass().getSimpleName();
     private Serializer serializer;
     private final List<TransportListener> listeners = new LinkedList<TransportListener>();
+    private ServiceLocator serviceLocator;
+
+    public void setServiceLocator(ServiceLocator serviceLocator) {
+        this.serviceLocator = serviceLocator;
+    }
 
     public void setSerializer(Serializer serializer) {
         this.serializer = serializer;
@@ -60,7 +65,7 @@ public class TransportServiceImpl extends TransportService.Stub {
     }
 
     private Object findService(Class serviceType) {
-        return ServiceRegistry.get().locate(serviceType);
+        return serviceLocator.locate(serviceType);
     }
 
     private Method findMethod(Invocation invocation) throws Exception {

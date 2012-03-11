@@ -2,9 +2,6 @@ package bratseth.maja.androidtest.server;
 
 import java.io.Serializable;
 
-import android.util.Log;
-import bratseth.maja.androidtest.service.TransportService;
-
 public class EventPublisher {
 
     private static final EventPublisher instance = new EventPublisher();

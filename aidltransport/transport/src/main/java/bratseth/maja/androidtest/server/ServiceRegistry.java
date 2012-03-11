@@ -10,12 +10,6 @@ import bratseth.maja.androidtest.service.ServiceLocator;
  */
 public class ServiceRegistry implements ServiceLocator {
 
-    private static final ServiceRegistry instance = new ServiceRegistry();
-
-    public static ServiceRegistry get() {
-        return instance;
-    }
-    
     private final Map<Class, Object> services = new HashMap<Class, Object>();
 
     @Override
