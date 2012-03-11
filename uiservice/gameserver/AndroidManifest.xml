@@ -4,5 +4,12 @@
       android:versionCode="1"
       android:versionName="1.0">
     <application android:label="GameServer demo">
+        <service android:name=".TransportServiceProvider"
+                 android:exported="true"
+                android:process=":remote">
+            <intent-filter>
+                <action android:name="bratseth.maja.androidtest.service.TransportService"></action>
+            </intent-filter>
+        </service>
     </application>
 </manifest>
