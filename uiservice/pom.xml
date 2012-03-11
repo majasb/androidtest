@@ -15,6 +15,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>bratseth.maja.androidtest</groupId>
+            <artifactId>transport</artifactId>
+            <version>${project.version}</version>
+            <type>apklib</type>
+        </dependency>
+        <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <version>${android.version}</version>

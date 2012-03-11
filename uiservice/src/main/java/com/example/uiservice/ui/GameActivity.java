@@ -1,18 +1,17 @@
 package com.example.uiservice.ui;
 
-import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import bratseth.maja.androidtest.service.ui.ServiceActivity;
 import com.example.uiservice.R;
 import com.example.uiservice.service.ResultHandler;
 import com.example.uiservice.spi.*;
-import com.example.uiservice.ui.spi.mock.GameServiceMock;
 import com.skullab.chess.Chessboard;
 
-public class GameActivity extends Activity {
+public class GameActivity extends ServiceActivity {
 
     private GameService gameService;
     private GameState gameState;
@@ -86,8 +85,6 @@ public class GameActivity extends Activity {
         board.setVisibility(View.INVISIBLE);
         startButton = (Button) main.findViewById(R.id.startButton);
         endButton = (Button) main.findViewById(R.id.endButton);
-
-        gameService = getGameService();
     }
 
     private void updateUi() {
@@ -108,8 +105,10 @@ public class GameActivity extends Activity {
     }
 
     private GameService getGameService() {
-        // would be in super class or similar
-        return new GameServiceMock(getApplicationContext());
+        if (gameService == null) {
+            gameService = getServiceLocator().locate(GameService.class);
+        }
+        return gameService;
     }
 
 }

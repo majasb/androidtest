@@ -3,6 +3,7 @@ package bratseth.maja.androidtest.server;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import bratseth.maja.androidtest.service.JavaSerializationSerializer;
 import bratseth.maja.androidtest.spi.CustomerService;
 
 /**
@@ -15,6 +16,7 @@ public class TransportServiceProvider extends Service {
     @Override
     public void onCreate() {
         service = new TransportServiceImpl();
+        service.setSerializer(new JavaSerializationSerializer());
         EventPublisher publisher = EventPublisher.get();
         publisher.setTransport(service);
         super.onCreate();

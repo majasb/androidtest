@@ -1,32 +1,36 @@
 package bratseth.maja.androidtest.service;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import android.os.RemoteException;
 
 public class ServiceEventListener extends TransportListener.Stub {
 
     private List<ClientEventListener> listeners = new LinkedList<ClientEventListener>();
+    
+    private Serializer serializer;
+
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
+    }
 
     @Override
-    public void notify(byte[] event) {
+    public void notify(byte[] eventData) {
         try {
-            Object e = Serializer.get().readObject(event);
-            notifyListeners(e);
+            Object event = serializer.readObject(eventData);
+            notifyListeners(event);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private void notifyListeners(Object e) {
+    private void notifyListeners(Object event) {
         for (ClientEventListener listener : listeners) {
-            listener.notify(e);
+            listener.notify(event);
         }
     }
 
     public void add(ClientEventListener listener) {
         listeners.add(listener);
     }
+
 }

@@ -8,11 +8,7 @@ import java.util.List;
 
 import android.os.RemoteException;
 import android.util.Log;
-import bratseth.maja.androidtest.service.Invocation;
-import bratseth.maja.androidtest.service.InvocationResult;
-import bratseth.maja.androidtest.service.Serializer;
-import bratseth.maja.androidtest.service.TransportListener;
-import bratseth.maja.androidtest.service.TransportService;
+import bratseth.maja.androidtest.service.*;
 
 /**
  * @author Maja S Bratseth
@@ -20,11 +16,15 @@ import bratseth.maja.androidtest.service.TransportService;
 public class TransportServiceImpl extends TransportService.Stub {
     
     private final String tag = getClass().getSimpleName();
-    private List<TransportListener> listeners = new LinkedList<TransportListener>();
+    private Serializer serializer;
+    private final List<TransportListener> listeners = new LinkedList<TransportListener>();
+
+    public void setSerializer(Serializer serializer) {
+        this.serializer = serializer;
+    }
 
     @Override
     public byte[] invoke(byte[] invocation) throws RemoteException {
-        final Serializer serializer = Serializer.get();
         try {
             Invocation unmarshalledInvocation = (Invocation) serializer.readObject(invocation);
             Object result = invokeService(unmarshalledInvocation);
@@ -68,10 +68,10 @@ public class TransportServiceImpl extends TransportService.Stub {
     }
 
     public void publish(Serializable e) throws Exception {
-        final Serializer serializer = Serializer.get();
         byte[] bytes = serializer.writeObject(e);
         for (TransportListener listener : listeners) {
             listener.notify(bytes);
         }
     }
+
 }

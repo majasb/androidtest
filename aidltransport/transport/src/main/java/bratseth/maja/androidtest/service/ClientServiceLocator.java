@@ -13,10 +13,17 @@ public class ClientServiceLocator implements ServiceLocator {
 
     private final TransportService transportService;
     private final ServiceEventListener serviceListener;
+    private final JavaSerializationSerializer serializer;
 
     public ClientServiceLocator(TransportService transportService) {
+        this(transportService, new JavaSerializationSerializer());
+    }
+
+    public ClientServiceLocator(TransportService transportService, JavaSerializationSerializer serializer) {
         this.transportService = transportService;
+        this.serializer = serializer;
         serviceListener = new ServiceEventListener();
+        serviceListener.setSerializer(serializer);
         registerServiceListener();
     }
 
@@ -47,7 +54,6 @@ public class ClientServiceLocator implements ServiceLocator {
     }
 
     private InvocationResult invokeRemoteService(Invocation invocation) throws Exception {
-        Serializer serializer = Serializer.get();
         byte[] invocationBytes = serializer.writeObject(invocation);
         final byte[] resultBytes = transportService.invoke(invocationBytes);
         return (InvocationResult) serializer.readObject(resultBytes);

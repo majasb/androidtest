@@ -5,9 +5,6 @@ import java.io.Serializable;
 import android.util.Log;
 import bratseth.maja.androidtest.service.TransportService;
 
-/**
- *
- */
 public class EventPublisher {
 
     private static final EventPublisher instance = new EventPublisher();
@@ -23,10 +20,12 @@ public class EventPublisher {
 
     public void publish(Serializable e) {
         try {
-            if (service != null)
+            if (service != null) {
                 service.publish(e);
+            }
         } catch (Exception ex) {
-            Log.e("cisco", "Failed to publish event", ex);
+            throw new RuntimeException(ex);
         }
     }
+
 }
