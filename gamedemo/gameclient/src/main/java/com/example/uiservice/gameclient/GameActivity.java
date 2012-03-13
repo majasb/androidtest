@@ -5,10 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
-import bratseth.maja.androidtest.service.ui.AidlServiceActivity;
 import bratseth.maja.androidtest.service.ui.MsgServiceActivity;
-
 import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 import com.skullab.chess.Chessboard;
@@ -30,7 +27,6 @@ public class GameActivity extends MsgServiceActivity {
 
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(), "Starting game", Toast.LENGTH_LONG).show();
                 startGame();
             }
         });
