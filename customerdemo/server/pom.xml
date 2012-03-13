@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>server</artifactId>
+    <artifactId>customerdemo-server</artifactId>
     <packaging>apk</packaging>
     <name>server</name>
 
