@@ -14,4 +14,8 @@ public interface GameService {
 
     void endGame(ExceptionHandler... exceptionHandler);
 
+    void addGameCallbackListener(GameCallbackListener listener);
+
+    void removeGameCallbackListener(GameCallbackListener listener);
+
 }

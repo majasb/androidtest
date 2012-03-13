@@ -73,6 +73,7 @@ public class ServiceInvokerMessageHandler extends Handler {
                 ResultHandlerStub resultHandlerStub = (ResultHandlerStub) parameters[parameters.length - 1];
                 return resultHandlerStub.getResult(); // TODO: remove exception field, and don't need to send from client
             }
+            // TODO: if CallbackListener
             return result;
         } catch (InvocationTargetException e) {
             throw e.getTargetException();

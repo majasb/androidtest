@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 import bratseth.maja.androidtest.service.ui.MsgServiceActivity;
 import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
@@ -18,6 +19,7 @@ public class GameActivity extends MsgServiceActivity {
     private Piece selectedPiece;
     private Button startButton;
     private Button endButton;
+    private GameCallbackListener gameCallbackListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,25 @@ public class GameActivity extends MsgServiceActivity {
                 }
             }
         });
+        
+        gameCallbackListener = new GameCallbackListener() {
+            @Override
+            public void somethingHappened() {
+                Toast.makeText(getApplicationContext(), "Something happened!", Toast.LENGTH_LONG).show();
+            }
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        gameService.addGameCallbackListener(gameCallbackListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        gameService.removeGameCallbackListener(gameCallbackListener);
     }
 
     private void startGame() {

@@ -5,6 +5,8 @@ import java.util.*;
 import android.graphics.Color;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
+
+import com.example.uiservice.spi.GameCallbackListener;
 import com.example.uiservice.spi.GameService;
 import com.example.uiservice.spi.GameState;
 import com.example.uiservice.spi.Piece;
@@ -14,6 +16,8 @@ import com.example.uiservice.spi.Position;
  * @author Maja S Bratseth
  */
 public class GameServiceImpl implements GameService {
+    
+    private final Set<GameCallbackListener> listeners = Collections.synchronizedSet(new HashSet<GameCallbackListener>());
 
     private final Map<Position, Piece> position2Piece = new HashMap<Position, Piece>();
     private final Map<Piece, Position> piece2Position = new HashMap<Piece, Position>();
@@ -38,11 +42,29 @@ public class GameServiceImpl implements GameService {
         moveGamePiece();
         final GameState gameState = createBoard();
         resultHandler.result(gameState);
+
+        notifyListeners();
+    }
+
+    private void notifyListeners() {
+        for (GameCallbackListener listener : listeners) {
+            listener.somethingHappened();
+        }
     }
 
     @Override
     public void endGame(ExceptionHandler... exceptionHandler) {
         clear();
+    }
+
+    @Override
+    public void addGameCallbackListener(GameCallbackListener listener) {
+        this.listeners.add(listener);
+    }
+
+    @Override
+    public void removeGameCallbackListener(GameCallbackListener listener) {
+        this.listeners.remove(listener);
     }
 
     private void clear() {
