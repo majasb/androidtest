@@ -9,13 +9,14 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>aidltransport</artifactId>
+    <artifactId>customerdemo</artifactId>
     <packaging>pom</packaging>
-    <name>aidltransport</name>
+    <name>customer demo</name>
 
     <modules>
-      <module>service</module>
-      <module>transport</module>
+      <module>spi</module>
+      <module>client</module>
+      <module>server</module>
     </modules>
 
 </project>

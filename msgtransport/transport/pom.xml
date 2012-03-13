@@ -9,13 +9,8 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>aidltransport</artifactId>
-    <packaging>pom</packaging>
-    <name>aidltransport</name>
-
-    <modules>
-      <module>service</module>
-      <module>transport</module>
-    </modules>
+    <artifactId>msgtransport-transport</artifactId>
+    <packaging>jar</packaging>
+    <name>transport</name>
 
 </project>

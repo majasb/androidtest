@@ -9,9 +9,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>uiservice</artifactId>
+    <artifactId>gamedemo</artifactId>
     <packaging>pom</packaging>
-    <name>uiservice</name>
+    <name>game demo</name>
     
     <modules>
       <module>gamespi</module>

@@ -13,8 +13,10 @@
     </properties>
 
     <modules>
-        <module>aidltransport</module>
-        <module>uiservice</module>
+      <module>aidltransport</module>
+      <module>msgtransport</module>
+      <module>customerdemo</module>
+      <module>gamedemo</module>
     </modules>
 
 </project>
