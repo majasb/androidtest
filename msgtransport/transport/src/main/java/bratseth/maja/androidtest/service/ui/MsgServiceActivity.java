@@ -42,7 +42,7 @@ public abstract class MsgServiceActivity extends Activity {
     }
 
     private void bindMessenger(ServiceConnection serviceConnection) {
-        boolean ok = bindService(new Intent("com.cisco.oberon.messenger.serviceInvocation"),
+        boolean ok = bindService(new Intent("bratseth.maja.androidtest.msgtransport.ServiceInvokerMessenger"),
                                  serviceConnection,
                                  Context.BIND_AUTO_CREATE);
         if (!ok) {
