@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import bratseth.maja.androidtest.service.ui.ServiceActivity;
+import bratseth.maja.androidtest.service.ui.AidlServiceActivity;
 import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 import com.skullab.chess.Chessboard;
 
-public class GameActivity extends ServiceActivity {
+public class GameActivity extends AidlServiceActivity {
 
     private GameService gameService;
     private GameState gameState;

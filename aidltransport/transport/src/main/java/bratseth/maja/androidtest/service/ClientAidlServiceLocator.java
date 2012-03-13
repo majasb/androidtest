@@ -13,14 +13,14 @@ import android.widget.Toast;
 /**
  * @author Maja S Bratseth
  */
-public class ClientServiceLocator implements ServiceLocator {
+public class ClientAidlServiceLocator implements ServiceLocatorWithCallback {
 
     private final Context context;
     private final TransportService transportService;
     private final ServiceEventListener serviceListener;
     private final Serializer serializer;
 
-    public ClientServiceLocator(Context context, TransportService transportService, Serializer serializer) {
+    public ClientAidlServiceLocator(Context context, TransportService transportService, Serializer serializer) {
         this.context = context;
         this.transportService = transportService;
         this.serializer = serializer;

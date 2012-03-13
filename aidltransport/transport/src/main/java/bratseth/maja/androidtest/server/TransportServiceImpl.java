@@ -18,9 +18,9 @@ public class TransportServiceImpl extends TransportService.Stub {
     private final String tag = getClass().getSimpleName();
     private Serializer serializer;
     private final List<TransportListener> listeners = new LinkedList<TransportListener>();
-    private ServiceLocator serviceLocator;
+    private ServiceLocatorWithCallback serviceLocator;
 
-    public void setServiceLocator(ServiceLocator serviceLocator) {
+    public void setServiceLocator(ServiceLocatorWithCallback serviceLocator) {
         this.serviceLocator = serviceLocator;
     }
 

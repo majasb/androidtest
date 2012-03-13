@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import bratseth.maja.androidtest.service.ClientServiceLocator;
+import bratseth.maja.androidtest.service.ClientAidlServiceLocator;
 import bratseth.maja.androidtest.service.JavaSerializationSerializer;
 import bratseth.maja.androidtest.service.ServiceLocator;
 import bratseth.maja.androidtest.service.TransportService;
@@ -15,7 +15,7 @@ import bratseth.maja.androidtest.service.TransportService;
 /**
  * @author Maja S Bratseth
  */
-public abstract class ServiceActivity extends Activity {
+public abstract class AidlServiceActivity extends Activity {
 
     private ServiceLocator serviceLocator;
 
@@ -25,9 +25,9 @@ public abstract class ServiceActivity extends Activity {
 
         final ServiceConnection connection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
-                serviceLocator = new ClientServiceLocator(getApplicationContext(),
-                                                          TransportService.Stub.asInterface(service),
-                                                          new JavaSerializationSerializer());
+                serviceLocator = new ClientAidlServiceLocator(getApplicationContext(),
+                                                              TransportService.Stub.asInterface(service),
+                                                              new JavaSerializationSerializer());
             }
             public void onServiceDisconnected(ComponentName className) {
                 finish();

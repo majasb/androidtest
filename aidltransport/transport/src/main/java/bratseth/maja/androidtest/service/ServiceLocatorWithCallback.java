@@ -3,9 +3,8 @@ package bratseth.maja.androidtest.service;
 /**
  * @author Maja S Bratseth
  */
-public interface ServiceLocator {
-    
-    <T> T locate(Class<T> type);
+public interface ServiceLocatorWithCallback extends ServiceLocator {
 
     void addEventListener(ClientEventListener listener);
+
 }

@@ -3,12 +3,12 @@ package bratseth.maja.androidtest.server;
 import java.util.*;
 
 import bratseth.maja.androidtest.service.ClientEventListener;
-import bratseth.maja.androidtest.service.ServiceLocator;
+import bratseth.maja.androidtest.service.ServiceLocatorWithCallback;
 
 /**
  * @author Maja S Bratseth
  */
-public class ServiceRegistry implements ServiceLocator {
+public class ServiceRegistry implements ServiceLocatorWithCallback {
 
     private final Map<Class, Object> services = new HashMap<Class, Object>();
 

@@ -9,7 +9,6 @@ public class ExceptionHandlerStub implements ExceptionHandler, Serializable {
 
     private Exception exception;
 
-    @Override
     public void exception(Exception exception) {
         this.exception = exception;
     }

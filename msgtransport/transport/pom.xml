@@ -5,12 +5,26 @@
 
     <parent>
         <groupId>bratseth.maja.androidtest</groupId>
-        <artifactId>androidtest</artifactId>
+        <artifactId>msgtransport</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>msgtransport-transport</artifactId>
     <packaging>jar</packaging>
     <name>transport</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>bratseth.maja.androidtest</groupId>
+            <artifactId>service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>${android.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

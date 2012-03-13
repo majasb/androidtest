@@ -22,7 +22,7 @@ import bratseth.maja.androidtest.spi.CustomerService;
 
 public class ClientActivity extends Activity {
 
-    private ServiceLocator serviceLocator;
+    private ServiceLocatorWithCallback serviceLocator;
     private CustomerService customerService;
     private TextView customerView;
     private Button button;
@@ -55,9 +55,9 @@ public class ClientActivity extends Activity {
 
         final ServiceConnection connection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
-                serviceLocator = new ClientServiceLocator(getApplicationContext(),
-                                                          TransportService.Stub.asInterface(service),
-                                                          new JavaSerializationSerializer());
+                serviceLocator = new ClientAidlServiceLocator(getApplicationContext(),
+                                                              TransportService.Stub.asInterface(service),
+                                                              new JavaSerializationSerializer());
                 serviceLocator.addEventListener(listener);
                 customerService = serviceLocator.locate(CustomerService.class);
             }

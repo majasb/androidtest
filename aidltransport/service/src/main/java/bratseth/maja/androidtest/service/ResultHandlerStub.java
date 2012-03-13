@@ -10,12 +10,10 @@ public class ResultHandlerStub implements ResultHandler, Serializable {
     private Object result;
     private Exception exception;
 
-    @Override
     public void result(Object result) {
         this.result = result;
     }
 
-    @Override
     public void exception(Exception exception) {
         this.exception = exception;
     }
