@@ -15,7 +15,7 @@
     <modules>
       <module>aidltransport</module>
       <module>msgtransport</module>
-      <module>customerdemo</module>
+      <!--module>customerdemo</module-->
       <module>gamedemo</module>
     </modules>
 
