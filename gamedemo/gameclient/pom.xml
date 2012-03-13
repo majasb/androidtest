@@ -21,13 +21,13 @@
         </dependency>
         <dependency>
             <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>aidltransport-transport</artifactId>
+            <artifactId>transport-aidl</artifactId>
             <version>${project.version}</version>
             <type>apklib</type>
         </dependency>
         <dependency>
             <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>msgtransport-transport</artifactId>
+            <artifactId>transport-messenger</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

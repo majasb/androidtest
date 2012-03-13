@@ -5,16 +5,12 @@
 
     <parent>
         <groupId>bratseth.maja.androidtest</groupId>
-        <artifactId>androidtest</artifactId>
+        <artifactId>transport</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>msgtransport</artifactId>
-    <packaging>pom</packaging>
-    <name>messenger transport</name>
-
-    <modules>
-      <module>transport</module>
-    </modules>
+    <artifactId>transport-common</artifactId>
+    <packaging>jar</packaging>
+    <name>transport-common</name>
 
 </project>

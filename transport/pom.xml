@@ -5,12 +5,18 @@
 
     <parent>
         <groupId>bratseth.maja.androidtest</groupId>
-        <artifactId>aidltransport</artifactId>
+        <artifactId>androidtest</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>service</artifactId>
-    <packaging>jar</packaging>
-    <name>service</name>
+    <artifactId>transport</artifactId>
+    <packaging>pom</packaging>
+    <name>transport</name>
+
+    <modules>
+      <module>transport-common</module>
+      <module>transport-aidl</module>
+      <module>transport-messenger</module>
+    </modules>
 
 </project>

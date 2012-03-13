@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>service</artifactId>
+            <artifactId>transport-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
