@@ -116,11 +116,11 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
             if (parameter instanceof ResultHandler) {
                 final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ResultHandler) parameter);
                 resultHandlers.add(proxy);
-                placeholderParameter = proxy.createStub();
+                placeholderParameter = null;
             } else if (parameter instanceof ExceptionHandler) {
                 final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
                 resultHandlers.add(proxy);
-                placeholderParameter = proxy.createStub();
+                placeholderParameter = null;
             }
             else {
                 placeholderParameter = parameter;

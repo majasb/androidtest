@@ -1,9 +1,7 @@
 package bratseth.maja.msgtransport.transport;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.*;
 
 import android.os.Handler;
@@ -16,6 +14,8 @@ import bratseth.maja.androidtest.service.*;
 public class ServiceInvokerMessageHandler extends Handler implements CallbackHandler {
 
     private final String tag = ServiceInvokerMessageHandler.class.getSimpleName();
+
+    private final ResultHandlerStub resultHandlerStub = new ResultHandlerStub();
 
     private Serializer serializer;
     private ServiceLocator serviceLocator;
@@ -49,7 +49,7 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     private void handleInvocation(Message message) throws Throwable {
         Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
         log("Got message: " + invocation);
-        Object result = invokeService(message, invocation);
+        Object result = invokeService(invocation);
         Message replyMessage = createReply(message, InvocationResult.normalResult(result));
         message.replyTo.send(replyMessage);
     }
@@ -113,24 +113,26 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
         this.serviceLocator = serviceLocator;
     }
 
-    private Object invokeService(Message message, Invocation invocation) throws Throwable {
+    private Object invokeService(Invocation invocation) throws Throwable {
         Method method = findMethod(invocation);
         Object service = findService(invocation.getServiceType());
         if (service == null) {
             throw new IllegalArgumentException("No such service: " + invocation.getServiceType());
         }
         try {
-            final Object[] parameters = invocation.getParameters();
-            // only supports one resulthandler for now
-            if (parameters.length > 0) {
-                Object parameter = parameters[parameters.length - 1];
-                if (parameter instanceof ResultHandlerStub) {
-                    ResultHandlerStub resultHandlerStub = (ResultHandlerStub) parameter;
-                    method.invoke(service, parameters);
+            // only supports one resulthandler/exceptionhandler for now
+            final Class[] parameterClasses = invocation.getParameterClasses();
+            if (parameterClasses.length > 0) {
+                Class lastParameterType = parameterClasses[parameterClasses.length - 1];
+                if (ExceptionHandler.class.isAssignableFrom(lastParameterType)) {
+                    Object[] modifiedParameters = new Object[parameterClasses.length];
+                    System.arraycopy(invocation.getParameters(), 0, modifiedParameters, 0, parameterClasses.length - 1);
+                    modifiedParameters[parameterClasses.length - 1] = resultHandlerStub;
+                    method.invoke(service, modifiedParameters);
                     return resultHandlerStub.getResult(); // TODO: remove exception field, and don't need to send from client
                 }
             }
-            return method.invoke(service, parameters);
+            return method.invoke(service, invocation.getParameters());
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }

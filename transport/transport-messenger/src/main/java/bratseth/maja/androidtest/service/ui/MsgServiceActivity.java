@@ -55,16 +55,10 @@ public abstract class MsgServiceActivity extends Activity {
     }
 
     protected ServiceLocator getServiceLocator() {
-        if (serviceLocator == null) {
-            throw new IllegalStateException("No services yet");
-        }
         return serviceLocator;
     }
 
     protected EventBroker getEventBroker() {
-        if (eventBroker == null) {
-            throw new IllegalStateException("No services yet");
-        }
         return eventBroker;
     }
     

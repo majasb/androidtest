@@ -36,12 +36,4 @@ public class ResultHandlerProxy {
         }
     }
 
-    public Object createStub() {
-        if (resultHandler != null) {
-            return new ResultHandlerStub();
-        } else {
-            return new ExceptionHandlerStub();
-        }
-    }
-
 }

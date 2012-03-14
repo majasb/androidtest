@@ -1,7 +1,5 @@
 package bratseth.maja.androidtest.service;
 
-import bratseth.maja.androidtest.service.ResultHandler;
-
 public abstract class ResultHandlerBase<T> implements ResultHandler<T> {
     
     public abstract void result(T result);
