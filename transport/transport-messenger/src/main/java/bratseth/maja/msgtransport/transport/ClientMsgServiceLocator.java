@@ -20,8 +20,8 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.ui.EventBroker;
-import com.example.uiservice.gameclient.CallbackListener;
-import com.example.uiservice.gameclient.TypedCallbackListener;
+import bratseth.maja.androidtest.service.CallbackListener;
+import bratseth.maja.androidtest.service.TypedCallbackListener;
 
 public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
 

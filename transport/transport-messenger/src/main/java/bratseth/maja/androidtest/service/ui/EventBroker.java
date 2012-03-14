@@ -1,6 +1,6 @@
 package bratseth.maja.androidtest.service.ui;
 
-import com.example.uiservice.gameclient.TypedCallbackListener;
+import bratseth.maja.androidtest.service.TypedCallbackListener;
 
 /**
  * @author Maja S Bratseth

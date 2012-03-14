@@ -1,4 +1,4 @@
-package com.example.uiservice.gameclient;
+package bratseth.maja.androidtest.service;
 
 /**
  * @author Maja S Bratseth

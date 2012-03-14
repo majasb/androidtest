@@ -1,6 +1,4 @@
-package com.example.uiservice.gameclient;
-
-import bratseth.maja.androidtest.service.CallbackEvent;
+package bratseth.maja.androidtest.service;
 
 /**
  * @author Maja S Bratseth
