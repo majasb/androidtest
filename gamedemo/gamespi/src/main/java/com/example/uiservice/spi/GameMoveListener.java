@@ -1,8 +1,6 @@
 package com.example.uiservice.spi;
 
-import bratseth.maja.androidtest.service.CallbackListener;
-
-public interface GameMoveListener extends CallbackListener {
+public interface GameMoveListener {
 
     void moveHappened();
 

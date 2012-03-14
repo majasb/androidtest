@@ -5,10 +5,22 @@ import bratseth.maja.androidtest.service.CallbackEvent;
 /**
  * @author Maja S Bratseth
  */
-public interface TypedCallbackListener<T extends CallbackEvent> {
+public abstract class TypedCallbackListener<T extends CallbackEvent> implements CallbackListener {
 
-    void handle(T callback);
+    private final Class<T> type;
 
-    Class getType();
+    protected TypedCallbackListener(Class<T> type) {
+        this.type = type;
+    }
+
+    public Class getType() {
+        return this.type;
+    }
+
+    public void handleEvent(Object callback) {
+        handle(type.cast(callback));
+    }
+
+    protected abstract void handle(T cast);
 
 }

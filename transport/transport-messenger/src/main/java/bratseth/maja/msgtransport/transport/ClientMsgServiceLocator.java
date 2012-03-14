@@ -1,6 +1,5 @@
 package bratseth.maja.msgtransport.transport;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import bratseth.maja.androidtest.service.*;
-import bratseth.maja.androidtest.service.CallbackListener;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -21,10 +19,11 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
-import bratseth.maja.androidtest.service.ui.EventEngine;
+import bratseth.maja.androidtest.service.ui.EventBroker;
+import com.example.uiservice.gameclient.CallbackListener;
 import com.example.uiservice.gameclient.TypedCallbackListener;
 
-public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
+public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
 
     private final Context context;
 
@@ -71,13 +70,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
                 } else if (msg.getData().containsKey("event")) {
                     handleEvent((CallbackEvent) msg.getData().getSerializable("event"));
                 } else {
-                    Invocation invocation = (Invocation) msg.getData().getSerializable("callbackInvocation");
-                    long resultHandlerId = msg.getData().getLong("resultHandlerId");
-                    List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.get(resultHandlerId);
-                    Log.i(getClass().getSimpleName(), "Received result " + invocation);
-                    for (ResultHandlerProxy handler : handlers) {
-                        handler.handle(invocation);
-                    }
+                    throw new IllegalArgumentException("Unknown message " + msg.getData());
                 }
             } catch (Throwable t) {
                 defaultHandleException(t);
@@ -86,8 +79,8 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
     }
 
     private void handleEvent(CallbackEvent event) {
-        for (TypedCallbackListener listener : listeners) {
-            listener.handle(event);
+        for (CallbackListener listener : listeners) {
+            listener.handleEvent(event);
         }
     }
 
@@ -126,10 +119,6 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
                 placeholderParameter = proxy.createStub();
             } else if (parameter instanceof ExceptionHandler) {
                 final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
-                resultHandlers.add(proxy);
-                placeholderParameter = proxy.createStub();
-            } else if (parameter instanceof CallbackListener) {
-                final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((CallbackListener) parameter);
                 resultHandlers.add(proxy);
                 placeholderParameter = proxy.createStub();
             }
