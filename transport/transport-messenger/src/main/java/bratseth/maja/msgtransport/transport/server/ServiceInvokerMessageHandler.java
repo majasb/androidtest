@@ -15,15 +15,20 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
 
     private final String tag = ServiceInvokerMessageHandler.class.getSimpleName();
 
-    private final ResultHandlerStub resultHandlerStub = new ResultHandlerStub();
-
     private final Map<Class, List<Messenger>> callbackListenerClients = new HashMap<Class, List<Messenger>>();
 
     private ServiceLocator serviceLocator;
 
+    public void setServiceLocator(ServiceLocator serviceLocator) {
+        this.serviceLocator = serviceLocator;
+    }
+
     @Override
     public void handleMessage(Message message) {
         try {
+            if (message.replyTo == null) {
+                throw new IllegalArgumentException("No replyTo in " + message.getData());
+            }
             if (message.getData().containsKey("registerListener")) {
                 registerListener(message);
             } else if (message.getData().containsKey("unregisterListener")) {
@@ -53,9 +58,6 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     }
 
     private void registerListener(Message message) {
-        if (message.replyTo == null) {
-            throw new IllegalArgumentException("No replyTo in " + message.getData());
-        }
         final Class eventType = (Class) message.getData().getSerializable("eventType");
         List<Messenger> messengers = callbackListenerClients.get(eventType);
         if (messengers == null) {
@@ -99,37 +101,42 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
         return replyMessage;
     }
 
-    public void setServiceLocator(ServiceLocator serviceLocator) {
-        this.serviceLocator = serviceLocator;
-    }
-
     private Object invokeService(Invocation invocation) throws Throwable {
         Method method = findMethod(invocation);
-        Object service = findService(invocation.getServiceType());
-        if (service == null) {
-            throw new IllegalArgumentException("No such service: " + invocation.getServiceType());
-        }
+        Object service = getService(invocation.getServiceType());
         try {
             // only supports one resulthandler/exceptionhandler for now
             final Class[] parameterClasses = invocation.getParameterClasses();
-            if (parameterClasses.length > 0) {
+            if (parameterClasses.length > 0
+                && ExceptionHandler.class.isAssignableFrom(parameterClasses[parameterClasses.length - 1])) {
+
                 Class lastParameterType = parameterClasses[parameterClasses.length - 1];
-                if (ExceptionHandler.class.isAssignableFrom(lastParameterType)) {
-                    Object[] modifiedParameters = new Object[parameterClasses.length];
-                    System.arraycopy(invocation.getParameters(), 0, modifiedParameters, 0, parameterClasses.length - 1);
-                    modifiedParameters[parameterClasses.length - 1] = resultHandlerStub;
-                    method.invoke(service, modifiedParameters);
-                    return resultHandlerStub.getResult(); // TODO: remove exception field, and don't need to send from client
+                ResultHandlerStub resultHandlerStub = new ResultHandlerStub();
+                Object[] modifiedParameters = new Object[parameterClasses.length];
+                System.arraycopy(invocation.getParameters(), 0, modifiedParameters, 0, parameterClasses.length - 1);
+                modifiedParameters[parameterClasses.length - 1] = resultHandlerStub;
+                method.invoke(service, modifiedParameters);
+                if (!resultHandlerStub.hasBeenSet()) {
+                    throw new IllegalStateException("Expected a result from invocation " + invocation);
                 }
+                if (resultHandlerStub.isException()) {
+                    throw resultHandlerStub.getException();
+                }
+                return resultHandlerStub.getResult();
+            } else {
+                return method.invoke(service, invocation.getParameters());
             }
-            return method.invoke(service, invocation.getParameters());
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
     }
 
-    private Object findService(Class serviceType) {
-        return serviceLocator.locate(serviceType);
+    private Object getService(Class serviceType) {
+        final Object service = serviceLocator.locate(serviceType);
+        if (service == null) {
+            throw new IllegalArgumentException("No such service: " + serviceType);
+        }
+        return service;
     }
 
     private Method findMethod(Invocation invocation) throws Exception {

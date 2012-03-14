@@ -9,15 +9,22 @@ import bratseth.maja.androidtest.service.ResultHandler;
  */
 public class ResultHandlerStub implements ResultHandler, Serializable {
 
+    private boolean hasBeenSet = false;
     private Object result;
     private Exception exception;
 
     public void result(Object result) {
         this.result = result;
+        hasBeenSet = true;
     }
 
     public void exception(Exception exception) {
         this.exception = exception;
+        hasBeenSet = false;
+    }
+
+    public boolean hasBeenSet() {
+        return hasBeenSet;
     }
 
     public Object getResult() {
@@ -26,6 +33,10 @@ public class ResultHandlerStub implements ResultHandler, Serializable {
 
     public Exception getException() {
         return exception;
+    }
+
+    public boolean isException() {
+        return exception != null;
     }
 
 }
