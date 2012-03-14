@@ -20,7 +20,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.ui.EventBroker;
-import bratseth.maja.androidtest.service.CallbackListener;
 import bratseth.maja.androidtest.service.TypedCallbackListener;
 
 public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
@@ -79,7 +78,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
     }
 
     private void handleEvent(CallbackEvent event) {
-        for (CallbackListener listener : listeners) {
+        for (TypedCallbackListener listener : listeners) {
             listener.handleEvent(event);
         }
     }
