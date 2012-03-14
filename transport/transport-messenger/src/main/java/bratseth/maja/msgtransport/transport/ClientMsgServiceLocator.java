@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.example.uiservice.spi.CallbackListener;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,12 +58,22 @@ public class ClientMsgServiceLocator implements ServiceLocator {
         @Override
         public void handleMessage(Message msg) {
             try {
-                InvocationResult result = (InvocationResult) msg.getData().getSerializable("result");
-                long resultHandlerId = msg.getData().getLong("resultHandlerId");
-                List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.remove(resultHandlerId);
-                Log.i(getClass().getSimpleName(), "Received result " + result);
-                for (ResultHandlerProxy handler : handlers) {
-                    handler.handle(result);
+                if (msg.getData().containsKey("result")) {
+                    InvocationResult result = (InvocationResult) msg.getData().getSerializable("result");
+                    long resultHandlerId = msg.getData().getLong("resultHandlerId");
+                    List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.remove(resultHandlerId);
+                    Log.i(getClass().getSimpleName(), "Received result " + result);
+                    for (ResultHandlerProxy handler : handlers) {
+                        handler.handle(result);
+                    }
+                } else {
+                    Invocation invocation = (Invocation) msg.getData().getSerializable("callbackInvocation");
+                    long resultHandlerId = msg.getData().getLong("resultHandlerId");
+                    List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.get(resultHandlerId);
+                    Log.i(getClass().getSimpleName(), "Received result " + invocation);
+                    for (ResultHandlerProxy handler : handlers) {
+                        handler.handle(invocation);
+                    }
                 }
             } catch (Throwable t) {
                 defaultHandleException(t);
@@ -86,19 +98,24 @@ public class ClientMsgServiceLocator implements ServiceLocator {
         Object[] adjustedParameters = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             final Object parameter = parameters[i];
-            final Object result;
+            final Object placeholderParameter;
             if (parameter instanceof ResultHandler) {
                 final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ResultHandler) parameter);
                 resultHandlers.add(proxy);
-                result = proxy.createStub();
+                placeholderParameter = proxy.createStub();
             } else if (parameter instanceof ExceptionHandler) {
                 final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
                 resultHandlers.add(proxy);
-                result = proxy.createStub();
-            } else {
-                result = parameter;
+                placeholderParameter = proxy.createStub();
+            } else if (parameter instanceof CallbackListener) {
+                final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((CallbackListener) parameter);
+                resultHandlers.add(proxy);
+                placeholderParameter = proxy.createStub();
             }
-            adjustedParameters[i] = result;
+            else {
+                placeholderParameter = parameter;
+            }
+            adjustedParameters[i] = placeholderParameter;
         }
         final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(),
                                                      adjustedParameters);

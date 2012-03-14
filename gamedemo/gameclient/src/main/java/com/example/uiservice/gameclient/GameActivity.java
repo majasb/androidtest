@@ -62,13 +62,13 @@ public class GameActivity extends MsgServiceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        gameService.addGameCallbackListener(gameCallbackListener);
+        getGameService().addGameCallbackListener(gameCallbackListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        gameService.removeGameCallbackListener(gameCallbackListener);
+        getGameService().removeGameCallbackListener(gameCallbackListener);
     }
 
     private void startGame() {

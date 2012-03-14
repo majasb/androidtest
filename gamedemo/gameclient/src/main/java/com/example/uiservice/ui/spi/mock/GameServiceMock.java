@@ -16,6 +16,8 @@ public class GameServiceMock implements GameService {
     private final Map<Position, Piece> position2Piece = new HashMap<Position, Piece>();
     private final Map<Piece, Position> piece2Position = new HashMap<Piece, Position>();
 
+    private final Set<GameCallbackListener> listeners = Collections.synchronizedSet(new HashSet<GameCallbackListener>());
+    
     private Piece gamePiece = new Piece(Color.GREEN);
 
     public GameServiceMock(Context context) {
@@ -42,8 +44,16 @@ public class GameServiceMock implements GameService {
         try {
             final GameState gameState = invokeMove(piece, position);
             resultHandler.result(gameState);
+
+            nofityListeners();
         } catch (Exception e) {
             handleException(e, resultHandler);
+        }
+    }
+
+    private void nofityListeners() {
+        for (GameCallbackListener listener : listeners) {
+            listener.somethingHappened();
         }
     }
 
@@ -54,6 +64,16 @@ public class GameServiceMock implements GameService {
         } catch (Exception e) {
             handleException(e, exceptionHandlers);
         }
+    }
+
+    @Override
+    public void addGameCallbackListener(GameCallbackListener listener) {
+        this.listeners.add(listener);
+    }
+
+    @Override
+    public void removeGameCallbackListener(GameCallbackListener listener) {
+        this.listeners.remove(listener);
     }
 
     private void handleException(Exception e, ExceptionHandler... exceptionHandlers) {
