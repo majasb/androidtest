@@ -14,13 +14,12 @@ import bratseth.maja.androidtest.service.*;
 public class ServiceInvokerMessageHandler extends Handler implements CallbackHandler {
 
     private final String tag = ServiceInvokerMessageHandler.class.getSimpleName();
-    private final boolean verbose = false;
 
     private final ResultHandlerStub resultHandlerStub = new ResultHandlerStub();
 
-    private ServiceLocator serviceLocator;
-
     private final Map<Class, List<Messenger>> callbackListenerClients = new HashMap<Class, List<Messenger>>();
+
+    private ServiceLocator serviceLocator;
 
     @Override
     public void handleMessage(Message message) {
@@ -48,7 +47,6 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
 
     private void handleInvocation(Message message) throws Throwable {
         Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
-        log("Got message: " + invocation);
         Object result = invokeService(invocation);
         Message replyMessage = createReply(message, InvocationResult.normalResult(result));
         message.replyTo.send(replyMessage);
@@ -99,12 +97,6 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
         replyMessage.getData().putSerializable("result", result);
         replyMessage.getData().putLong("resultHandlerId", invocationMessage.getData().getLong("resultHandlerId"));
         return replyMessage;
-    }
-
-    private void log(String msg) {
-        if (verbose) {
-            Log.i(ServiceInvokerMessageHandler.class.getSimpleName(), msg);
-        }
     }
 
     public void setServiceLocator(ServiceLocator serviceLocator) {
