@@ -8,20 +8,23 @@ import android.util.Log;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
+
+import com.example.uiservice.spi.CallbackHandler;
 import com.example.uiservice.spi.*;
 
 public class GameServiceMock implements GameService {
     
     private final Context context;
+    private final CallbackHandler callbackHandler;
+
     private final Map<Position, Piece> position2Piece = new HashMap<Position, Piece>();
     private final Map<Piece, Position> piece2Position = new HashMap<Piece, Position>();
 
-    private final Set<GameCallbackListener> listeners = Collections.synchronizedSet(new HashSet<GameCallbackListener>());
-    
-    private Piece gamePiece = new Piece(Color.GREEN);
+    private final Piece gamePiece = new Piece(Color.GREEN);
 
-    public GameServiceMock(Context context) {
+    public GameServiceMock(Context context, CallbackHandler callbackHandler) {
         this.context = context;
+        this.callbackHandler = callbackHandler;
     }
 
     // exception handling would not be in the service implementation, but in an infrastructure layer
@@ -52,9 +55,7 @@ public class GameServiceMock implements GameService {
     }
 
     private void nofityListeners() {
-        for (GameCallbackListener listener : listeners) {
-            listener.somethingHappened();
-        }
+        callbackHandler.
     }
 
     @Override
@@ -64,16 +65,6 @@ public class GameServiceMock implements GameService {
         } catch (Exception e) {
             handleException(e, exceptionHandlers);
         }
-    }
-
-    @Override
-    public void addGameCallbackListener(GameCallbackListener listener) {
-        this.listeners.add(listener);
-    }
-
-    @Override
-    public void removeGameCallbackListener(GameCallbackListener listener) {
-        this.listeners.remove(listener);
     }
 
     private void handleException(Exception e, ExceptionHandler... exceptionHandlers) {

@@ -4,17 +4,10 @@ import com.example.uiservice.spi.GameService;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.Messenger;
-import android.util.Log;
-import bratseth.maja.androidtest.server.EventPublisher;
 import bratseth.maja.androidtest.server.ServiceRegistry;
-import bratseth.maja.androidtest.server.TransportServiceImpl;
 import bratseth.maja.androidtest.service.JavaSerializationSerializer;
-import bratseth.maja.androidtest.service.Serializer;
-import bratseth.maja.androidtest.service.ServiceLocator;
 import bratseth.maja.msgtransport.transport.ServiceInvokerMessageHandler;
 
 /**
@@ -35,7 +28,7 @@ public class ServiceInvokerMessenger extends Service {
         messageHandler.setSerializer(new JavaSerializationSerializer());
 
         final ServiceRegistry serviceRegistry = new ServiceRegistry();
-        serviceRegistry.register(GameService.class, new GameServiceImpl());
+        serviceRegistry.register(GameService.class, new GameServiceImpl(callbackListener));
 
         messageHandler.setServiceLocator(serviceRegistry);
 

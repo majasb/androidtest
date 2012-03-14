@@ -19,7 +19,7 @@ public class GameActivity extends MsgServiceActivity {
     private Piece selectedPiece;
     private Button startButton;
     private Button endButton;
-    private GameCallbackListener gameCallbackListener;
+    private GameMoveHappened gameCallbackListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +51,7 @@ public class GameActivity extends MsgServiceActivity {
             }
         });
         
-        gameCallbackListener = new GameCallbackListener() {
+        gameCallbackListener = new GameMoveHappened() {
             @Override
             public void somethingHappened() {
                 Toast.makeText(getApplicationContext(), "Something happened!", Toast.LENGTH_LONG).show();

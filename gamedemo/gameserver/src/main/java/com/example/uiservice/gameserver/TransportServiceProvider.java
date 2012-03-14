@@ -23,7 +23,7 @@ public class TransportServiceProvider extends Service {
         service.setSerializer(new JavaSerializationSerializer());
 
         final ServiceRegistry serviceRegistry = new ServiceRegistry();
-        serviceRegistry.register(GameService.class, new GameServiceImpl());
+        serviceRegistry.register(GameService.class, new GameServiceImpl(callbackListener));
 
         service.setServiceLocator(serviceRegistry);
 

@@ -6,7 +6,8 @@ import android.graphics.Color;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
 
-import com.example.uiservice.spi.GameCallbackListener;
+import com.example.uiservice.spi.CallbackHandler;
+import com.example.uiservice.spi.GameMoveHappened;
 import com.example.uiservice.spi.GameService;
 import com.example.uiservice.spi.GameState;
 import com.example.uiservice.spi.Piece;
@@ -17,12 +18,16 @@ import com.example.uiservice.spi.Position;
  */
 public class GameServiceImpl implements GameService {
     
-    private final Set<GameCallbackListener> listeners = Collections.synchronizedSet(new HashSet<GameCallbackListener>());
+    private final CallbackHandler callbackHandler;
 
     private final Map<Position, Piece> position2Piece = new HashMap<Position, Piece>();
     private final Map<Piece, Position> piece2Position = new HashMap<Piece, Position>();
 
     private Piece gamePiece = new Piece(Color.GREEN);
+
+    public GameServiceImpl(CallbackHandler callbackHandler) {
+        this.callbackHandler = callbackHandler;
+    }
 
     @Override
     public void startGame(ResultHandler<GameState> resultHandler) {
@@ -47,24 +52,12 @@ public class GameServiceImpl implements GameService {
     }
 
     private void notifyListeners() {
-        for (GameCallbackListener listener : listeners) {
-            listener.somethingHappened();
-        }
+        callbackHandler.sendCallback(new GameMoveHappened());
     }
 
     @Override
     public void endGame(ExceptionHandler... exceptionHandler) {
         clear();
-    }
-
-    @Override
-    public void addGameCallbackListener(GameCallbackListener listener) {
-        this.listeners.add(listener);
-    }
-
-    @Override
-    public void removeGameCallbackListener(GameCallbackListener listener) {
-        this.listeners.remove(listener);
     }
 
     private void clear() {
