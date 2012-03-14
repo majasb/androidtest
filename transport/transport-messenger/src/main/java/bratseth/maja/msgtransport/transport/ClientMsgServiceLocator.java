@@ -9,7 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.example.uiservice.spi.CallbackListener;
+import bratseth.maja.androidtest.service.*;
+import bratseth.maja.androidtest.service.CallbackListener;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -19,17 +20,15 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
-import bratseth.maja.androidtest.service.ExceptionHandler;
-import bratseth.maja.androidtest.service.Invocation;
-import bratseth.maja.androidtest.service.InvocationResult;
-import bratseth.maja.androidtest.service.ResultHandler;
-import bratseth.maja.androidtest.service.ResultHandlerProxy;
-import bratseth.maja.androidtest.service.ServiceLocator;
+import bratseth.maja.androidtest.service.ui.EventEngine;
+import com.example.uiservice.gameclient.TypedCallbackListener;
 
-public class ClientMsgServiceLocator implements ServiceLocator {
+public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
 
     private final Context context;
 
+    private final List<TypedCallbackListener> listeners = new ArrayList<TypedCallbackListener>();
+    
     // queued
     private final LinkedList<Invocation> commands = new LinkedList<Invocation>();
     private final Map<Invocation, List<ResultHandlerProxy>> resultHandlersForCommands =
@@ -87,6 +86,10 @@ public class ClientMsgServiceLocator implements ServiceLocator {
             Invocation command = commands.pop();
             invokeRemoteService(command, resultHandlersForCommands.remove(command));
         }
+    }
+
+    public void stopEventListening() {
+        // TODO: deregister all listeners
     }
 
     public void messengerDisconnected() {
@@ -155,4 +158,9 @@ public class ClientMsgServiceLocator implements ServiceLocator {
         Toast.makeText(context, text, Toast.LENGTH_LONG).show();
     }
 
+    public void addListener(TypedCallbackListener callbackListener) {
+        this.listeners.add(callbackListener);
+        registerRemoteListener()
+    }
+    
 }

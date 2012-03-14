@@ -2,10 +2,6 @@ package bratseth.maja.androidtest.service;
 
 import java.lang.reflect.Method;
 
-import com.example.uiservice.spi.CallbackListener;
-
-import bratseth.maja.msgtransport.transport.CallbackListenerStub;
-
 /**
  * @author Maja S Bratseth
  */

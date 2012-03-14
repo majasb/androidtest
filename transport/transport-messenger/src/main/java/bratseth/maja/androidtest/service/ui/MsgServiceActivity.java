@@ -17,14 +17,18 @@ import bratseth.maja.msgtransport.transport.ClientMsgServiceLocator;
 public abstract class MsgServiceActivity extends Activity {
 
     private ServiceLocator serviceLocator;
+    private EventEngine eventEngine;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final ClientMsgServiceLocator msgServiceLocator = new ClientMsgServiceLocator(getApplicationContext());
+
         ServiceConnection messengerConnection = createMessengerConnection(msgServiceLocator);
+
         this.serviceLocator = msgServiceLocator;
+        this.eventEngine = msgServiceLocator;
 
         bindMessenger(messengerConnection);
     }
@@ -50,12 +54,18 @@ public abstract class MsgServiceActivity extends Activity {
         }
     }
 
-
     protected ServiceLocator getServiceLocator() {
         if (serviceLocator == null) {
             throw new IllegalStateException("No services yet");
         }
         return serviceLocator;
+    }
+
+    protected EventEngine getEventEngine() {
+        if (eventEngine == null) {
+            throw new IllegalStateException("No services yet");
+        }
+        return eventEngine;
     }
     
 }

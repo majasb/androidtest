@@ -28,7 +28,7 @@ public class ServiceInvokerMessenger extends Service {
         messageHandler.setSerializer(new JavaSerializationSerializer());
 
         final ServiceRegistry serviceRegistry = new ServiceRegistry();
-        serviceRegistry.register(GameService.class, new GameServiceImpl(callbackListener));
+        serviceRegistry.register(GameService.class, new GameServiceImpl(messageHandler));
 
         messageHandler.setServiceLocator(serviceRegistry);
 

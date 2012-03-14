@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import bratseth.maja.androidtest.service.ResultHandlerBase;
 import bratseth.maja.androidtest.service.ui.MsgServiceActivity;
-import com.example.uiservice.service.ResultHandlerBase;
 import com.example.uiservice.spi.*;
 import com.skullab.chess.Chessboard;
 
@@ -19,7 +19,6 @@ public class GameActivity extends MsgServiceActivity {
     private Piece selectedPiece;
     private Button startButton;
     private Button endButton;
-    private GameMoveHappened gameCallbackListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,25 +49,12 @@ public class GameActivity extends MsgServiceActivity {
                 }
             }
         });
-        
-        gameCallbackListener = new GameMoveHappened() {
+        getEventEngine().addListener(new TypedCallbackListener<GameMoveHappened>(GameMoveHappened.class) {
             @Override
-            public void somethingHappened() {
-                Toast.makeText(getApplicationContext(), "Something happened!", Toast.LENGTH_LONG).show();
+            public void handle(GameMoveHappened callback) {
+                Toast.makeText(getApplicationContext(), "Move happened!", Toast.LENGTH_LONG).show();
             }
-        };
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getGameService().addGameCallbackListener(gameCallbackListener);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        getGameService().removeGameCallbackListener(gameCallbackListener);
+        });
     }
 
     private void startGame() {

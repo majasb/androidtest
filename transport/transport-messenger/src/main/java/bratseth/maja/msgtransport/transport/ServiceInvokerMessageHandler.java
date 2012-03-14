@@ -4,37 +4,35 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.*;
 
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
-import bratseth.maja.androidtest.service.Invocation;
-import bratseth.maja.androidtest.service.InvocationResult;
-import bratseth.maja.androidtest.service.ResultHandlerStub;
-import bratseth.maja.androidtest.service.Serializer;
-import bratseth.maja.androidtest.service.ServiceLocator;
+import bratseth.maja.androidtest.service.*;
 
-public class ServiceInvokerMessageHandler extends Handler {
+public class ServiceInvokerMessageHandler extends Handler implements CallbackHandler {
 
     private final String tag = getClass().getSimpleName();
 
     private Serializer serializer;
     private ServiceLocator serviceLocator;
 
+    private final Map<Class, List<Messenger>> callbackListenerClients = new HashMap<Class, List<Messenger>>();
+
     @Override
     public void handleMessage(Message message) {
         try {
-            Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
-            log("Got message: " + invocation);
-
-            Object result = invokeService(message, invocation);
-            if (isRegisterCallbackListenerMessage(message, invocation)) {
-                if (result != null) {
-                    throw new IllegalStateException("Excpected no result for callback register method, got " + result);
-                }
-                // callback will come later
+            if (isRegisterCallbackListenerMessage(message)) {
+                registerListener(message);
+            } else if (isUnregisterCallbackListenerMessage(message)) {
+                unregisterListener(message);
             } else {
+                Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
+                log("Got message: " + invocation);
+                Object result = invokeService(message, invocation);
                 Message replyMessage = createReply(message, InvocationResult.normalResult(result));
                 message.replyTo.send(replyMessage);
             }
@@ -50,9 +48,49 @@ public class ServiceInvokerMessageHandler extends Handler {
         }
     }
 
-    private boolean isRegisterCallbackListenerMessage(Message message, Invocation invocation) {
-        // TODO: Declare this excplicitly
-        return invocation.getParameters().length == 1 && invocation.getParameters()[0] instanceof CallbackListenerStub;
+    private void registerListener(Message message) {
+        final Class eventType = (Class) message.getData().getSerializable("eventType");
+        List<Messenger> messengers = callbackListenerClients.get(eventType);
+        if (messengers == null) {
+            messengers = new ArrayList<Messenger>();
+            callbackListenerClients.put(eventType, messengers);
+        }
+        messengers.add(message.replyTo);
+    }
+    
+    private void unregisterListener(Message message) {
+        final Class eventType = (Class) message.getData().getSerializable("eventType");
+        List<Messenger> messengers = callbackListenerClients.get(eventType);
+        if (messengers != null) {
+            messengers.remove(message.replyTo);
+            if (messengers.isEmpty()) {
+                callbackListenerClients.remove(eventType);
+            }
+        }
+    }
+
+    public void sendCallback(CallbackEvent callback) {
+        if (callbackListenerClients.containsKey(callback.getClass())) {
+            for (Messenger client : callbackListenerClients.get(callback.getClass())) {
+                Message event = Message.obtain();
+                event.getData().putSerializable("event", callback);
+                try {
+                    client.send(event);
+                }
+                catch (RemoteException e) {
+                    // TODO: Maybe remove client
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private boolean isRegisterCallbackListenerMessage(Message message) {
+        return message.getData().containsKey("unregisterListener");
+    }
+
+    private boolean isUnregisterCallbackListenerMessage(Message message) {
+        return message.getData().containsKey("unregisterListener");
     }
 
     private Message createReply(Message invocationMessage, InvocationResult result) {
@@ -171,4 +209,5 @@ public class ServiceInvokerMessageHandler extends Handler {
             return listenerStub.hashCode();
         }
     }
+
 }

@@ -1,4 +1,4 @@
-package com.example.uiservice.service;
+package bratseth.maja.androidtest.service;
 
 import bratseth.maja.androidtest.service.ResultHandler;
 

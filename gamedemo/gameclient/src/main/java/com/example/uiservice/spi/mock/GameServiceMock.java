@@ -1,4 +1,4 @@
-package com.example.uiservice.ui.spi.mock;
+package com.example.uiservice.spi.mock;
 
 import java.util.*;
 
@@ -6,10 +6,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.Toast;
+import bratseth.maja.androidtest.service.CallbackHandler;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
 
-import com.example.uiservice.spi.CallbackHandler;
 import com.example.uiservice.spi.*;
 
 public class GameServiceMock implements GameService {

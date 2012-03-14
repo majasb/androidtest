@@ -1,4 +1,4 @@
-package bratseth.maja.msgtransport.transport;
+package bratseth.maja.androidtest.service;
 
 import java.io.Serializable;
 
