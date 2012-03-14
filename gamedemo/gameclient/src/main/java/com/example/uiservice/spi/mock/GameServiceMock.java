@@ -118,7 +118,7 @@ public class GameServiceMock implements GameService {
     }
 
     private void defaultHandleException(Exception e) {
-        Log.e(getClass().getSimpleName(), "Error", e);
+        Log.e(GameServiceMock.class.getSimpleName(), "Error", e);
         Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
 

@@ -15,7 +15,7 @@ import bratseth.maja.androidtest.service.*;
 
 public class ServiceInvokerMessageHandler extends Handler implements CallbackHandler {
 
-    private final String tag = getClass().getSimpleName();
+    private final String tag = ServiceInvokerMessageHandler.class.getSimpleName();
 
     private Serializer serializer;
     private ServiceLocator serviceLocator;
@@ -25,16 +25,14 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     @Override
     public void handleMessage(Message message) {
         try {
-            if (isRegisterCallbackListenerMessage(message)) {
+            if (message.getData().containsKey("registerListener")) {
                 registerListener(message);
-            } else if (isUnregisterCallbackListenerMessage(message)) {
+            } else if (message.getData().containsKey("unregisterListener")) {
                 unregisterListener(message);
+            } else if (message.getData().containsKey("invocation")) {
+                handleInvocation(message);
             } else {
-                Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
-                log("Got message: " + invocation);
-                Object result = invokeService(message, invocation);
-                Message replyMessage = createReply(message, InvocationResult.normalResult(result));
-                message.replyTo.send(replyMessage);
+                throw new IllegalArgumentException("Unexpected message " + message.getData());
             }
         } catch (Throwable e) {
             try {
@@ -48,7 +46,18 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
         }
     }
 
+    private void handleInvocation(Message message) throws Throwable {
+        Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
+        log("Got message: " + invocation);
+        Object result = invokeService(message, invocation);
+        Message replyMessage = createReply(message, InvocationResult.normalResult(result));
+        message.replyTo.send(replyMessage);
+    }
+
     private void registerListener(Message message) {
+        if (message.replyTo == null) {
+            throw new IllegalArgumentException("No replyTo in " + message.getData());
+        }
         final Class eventType = (Class) message.getData().getSerializable("eventType");
         List<Messenger> messengers = callbackListenerClients.get(eventType);
         if (messengers == null) {
@@ -85,14 +94,6 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
         }
     }
 
-    private boolean isRegisterCallbackListenerMessage(Message message) {
-        return message.getData().containsKey("unregisterListener");
-    }
-
-    private boolean isUnregisterCallbackListenerMessage(Message message) {
-        return message.getData().containsKey("unregisterListener");
-    }
-
     private Message createReply(Message invocationMessage, InvocationResult result) {
         Message replyMessage = Message.obtain();
         replyMessage.getData().putSerializable("result", result);
@@ -101,7 +102,7 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     }
 
     private void log(String msg) {
-        Log.i(getClass().getSimpleName(), msg);
+        Log.i(ServiceInvokerMessageHandler.class.getSimpleName(), msg);
     }
 
     public void setSerializer(Serializer serializer) {

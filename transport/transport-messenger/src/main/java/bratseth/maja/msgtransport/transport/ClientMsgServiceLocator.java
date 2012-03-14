@@ -158,12 +158,12 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
         data.putLong("resultHandlerId", handlerId);
         this.resultHandlers.put(handlerId, resultHandlers);
 
-        msg.replyTo = replyHandlerMessenger;
         send(msg);
     }
 
     private void send(Message msg) {
         try {
+            msg.replyTo = replyHandlerMessenger;
             messenger.send(msg);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -189,24 +189,14 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
         Message message = Message.obtain();
         message.getData().putString("registerListener", null);
         message.getData().putSerializable("eventType", type);
-        try {
-            messenger.send(message);
-        }
-        catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        send(message);
     }
 
     private void deregisterRemoteListener(Class type) {
         Message message = Message.obtain();
         message.getData().putString("deregisterListener", null);
         message.getData().putSerializable("eventType", type);
-        try {
-            messenger.send(message);
-        }
-        catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        send(message);
     }
 
 }
