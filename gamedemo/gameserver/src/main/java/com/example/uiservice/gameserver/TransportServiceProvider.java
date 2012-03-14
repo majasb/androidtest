@@ -6,6 +6,8 @@ import android.os.IBinder;
 import bratseth.maja.androidtest.server.EventPublisher;
 import bratseth.maja.androidtest.server.ServiceRegistry;
 import bratseth.maja.androidtest.server.TransportServiceImpl;
+import bratseth.maja.androidtest.service.CallbackEvent;
+import bratseth.maja.androidtest.service.CallbackHandler;
 import bratseth.maja.androidtest.service.JavaSerializationSerializer;
 import com.example.uiservice.spi.GameService;
 
@@ -23,7 +25,12 @@ public class TransportServiceProvider extends Service {
         service.setSerializer(new JavaSerializationSerializer());
 
         final ServiceRegistry serviceRegistry = new ServiceRegistry();
-        serviceRegistry.register(GameService.class, new GameServiceImpl(callbackListener));
+        serviceRegistry.register(GameService.class, new GameServiceImpl(new CallbackHandler() {
+            @Override
+            public void sendCallback(CallbackEvent callback) {
+                // TODO
+            }
+        }));
 
         service.setServiceLocator(serviceRegistry);
 

@@ -38,7 +38,7 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
             }
         } catch (Throwable e) {
             try {
-                Log.e(tag, "Caught exception. Passing on to client", e);
+                Log.e(tag, "Caught exception. Passing on to client. Data: " + message.getData(), e);
                 Message replyMessage = createReply(message, InvocationResult.exception(e));
                 message.replyTo.send(replyMessage);
             } catch (Exception e2) {

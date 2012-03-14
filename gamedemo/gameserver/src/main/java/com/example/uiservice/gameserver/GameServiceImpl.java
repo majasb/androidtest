@@ -3,6 +3,7 @@ package com.example.uiservice.gameserver;
 import java.util.*;
 
 import android.graphics.Color;
+import bratseth.maja.androidtest.service.CallbackHandler;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
 
@@ -13,15 +14,15 @@ import com.example.uiservice.spi.*;
  */
 public class GameServiceImpl implements GameService {
     
-    private final GameMoveListener gameMoveListener;
+    private final CallbackHandler callbackHandler;
 
     private final Map<Position, Piece> position2Piece = new HashMap<Position, Piece>();
     private final Map<Piece, Position> piece2Position = new HashMap<Piece, Position>();
 
     private final Piece gamePiece = new Piece(Color.GREEN);
 
-    public GameServiceImpl(GameMoveListener gameMoveListener) {
-        this.gameMoveListener = gameMoveListener;
+    public GameServiceImpl(CallbackHandler callbackHandler) {
+        this.callbackHandler = callbackHandler;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class GameServiceImpl implements GameService {
     }
 
     private void notifyListeners() {
-        gameMoveListener.moveHappened();
+        callbackHandler.sendCallback(new GameMoveHappened());
     }
 
     @Override

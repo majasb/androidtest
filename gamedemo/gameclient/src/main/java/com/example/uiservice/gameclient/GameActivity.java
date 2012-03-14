@@ -49,10 +49,10 @@ public class GameActivity extends MsgServiceActivity {
                 }
             }
         });
-        getEventEngine().addListener(new TypedCallbackListener<GameMoveHappened>(GameMoveHappened.class) {
+        getEventEngine().addListener(new TypedCallbackListenerBase<GameMoveHappened>(GameMoveHappened.class) {
             @Override
             public void handle(GameMoveHappened callback) {
-                Toast.makeText(getApplicationContext(), "Move happened!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Move happened!", Toast.LENGTH_SHORT).show();
             }
         });
     }

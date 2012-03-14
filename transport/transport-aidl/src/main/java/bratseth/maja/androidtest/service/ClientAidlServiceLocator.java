@@ -103,7 +103,7 @@ public class ClientAidlServiceLocator implements ServiceLocatorWithCallback {
     private void defaultHandleException(Throwable t) {
         final String text = "Error: " + t.getMessage();
         Log.e(getClass().getSimpleName(), "Handled exception. Message shown to user: " + text, t);
-        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
     @Override

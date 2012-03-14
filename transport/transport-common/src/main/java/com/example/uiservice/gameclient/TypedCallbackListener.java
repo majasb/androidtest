@@ -9,4 +9,6 @@ public interface TypedCallbackListener<T extends CallbackEvent> {
 
     void handle(T callback);
 
+    Class getType();
+
 }

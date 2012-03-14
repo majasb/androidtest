@@ -1,5 +1,6 @@
 package bratseth.maja.msgtransport.transport;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -33,6 +34,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
     private final LinkedList<Invocation> commands = new LinkedList<Invocation>();
     private final Map<Invocation, List<ResultHandlerProxy>> resultHandlersForCommands =
         new HashMap<Invocation, List<ResultHandlerProxy>>();
+    private final LinkedList<Class> eventTypes = new LinkedList<Class>();
 
     private final Map<Long, List<ResultHandlerProxy>> resultHandlers = new HashMap<Long, List<ResultHandlerProxy>>();
     private Messenger messenger;
@@ -60,11 +62,14 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
                 if (msg.getData().containsKey("result")) {
                     InvocationResult result = (InvocationResult) msg.getData().getSerializable("result");
                     long resultHandlerId = msg.getData().getLong("resultHandlerId");
-                    List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.remove(resultHandlerId);
+                    List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.remove(
+                        resultHandlerId);
                     Log.i(getClass().getSimpleName(), "Received result " + result);
                     for (ResultHandlerProxy handler : handlers) {
                         handler.handle(result);
                     }
+                } else if (msg.getData().containsKey("event")) {
+                    handleEvent((CallbackEvent) msg.getData().getSerializable("event"));
                 } else {
                     Invocation invocation = (Invocation) msg.getData().getSerializable("callbackInvocation");
                     long resultHandlerId = msg.getData().getLong("resultHandlerId");
@@ -80,16 +85,29 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
         }
     }
 
+    private void handleEvent(CallbackEvent event) {
+        for (TypedCallbackListener listener : listeners) {
+            listener.handle(event);
+        }
+    }
+
     public void messengerConnected(Messenger messenger) {
         this.messenger = messenger;
         while (!commands.isEmpty()) {
             Invocation command = commands.pop();
             invokeRemoteService(command, resultHandlersForCommands.remove(command));
         }
+        while (!eventTypes.isEmpty()) {
+            Class eventType = eventTypes.pop();
+            registerRemoteListener(eventType);
+        }
     }
 
     public void stopEventListening() {
-        // TODO: deregister all listeners
+        for (TypedCallbackListener listener : listeners) {
+            deregisterRemoteListener(listener.getType());
+        }
+        listeners.clear();
     }
 
     public void messengerDisconnected() {
@@ -155,12 +173,40 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventEngine {
     private void defaultHandleException(Throwable t) {
         final String text = "Error: " + t.getMessage();
         Log.e(getClass().getSimpleName(), "Handled exception. Message shown to user: " + text, t);
-        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
     public void addListener(TypedCallbackListener callbackListener) {
         this.listeners.add(callbackListener);
-        registerRemoteListener()
+        registerRemoteListener(callbackListener.getType());
     }
-    
+
+    private void registerRemoteListener(Class type) {
+        if (messenger == null) {
+            eventTypes.add(type);
+            return;
+        }
+        Message message = Message.obtain();
+        message.getData().putString("registerListener", null);
+        message.getData().putSerializable("eventType", type);
+        try {
+            messenger.send(message);
+        }
+        catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void deregisterRemoteListener(Class type) {
+        Message message = Message.obtain();
+        message.getData().putString("deregisterListener", null);
+        message.getData().putSerializable("eventType", type);
+        try {
+            messenger.send(message);
+        }
+        catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
