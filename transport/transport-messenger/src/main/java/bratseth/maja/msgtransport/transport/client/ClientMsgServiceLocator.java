@@ -42,6 +42,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
         this.context = context;
     }
 
+    @Override
     public <T> T locate(final Class<T> type) {
         InvocationHandler handler = new InvocationHandler() {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -53,38 +54,9 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
         return type.cast(proxy);
     }
 
-    private class ReplyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            try {
-                if (msg.getData().containsKey("result")) {
-                    InvocationResult result = (InvocationResult) msg.getData().getSerializable("result");
-                    long resultHandlerId = msg.getData().getLong("resultHandlerId");
-                    List<ResultHandlerProxy> handlers = ClientMsgServiceLocator.this.resultHandlers.remove(
-                        resultHandlerId);
-                    Log.i(getClass().getSimpleName(), "Received result " + result);
-                    for (ResultHandlerProxy handler : handlers) {
-                        handler.handle(result);
-                    }
-                } else if (msg.getData().containsKey("event")) {
-                    handleEvent((CallbackEvent) msg.getData().getSerializable("event"));
-                } else {
-                    throw new IllegalArgumentException("Unknown message " + msg.getData());
-                }
-            } catch (Throwable t) {
-                defaultHandleException(t);
-            }
-        }
-    }
-
+    @Override
     public void addListener(TypedCallbackListener callbackListener) {
         this.callbackListeners.add(callbackListener);
-    }
-
-    private void handleEvent(CallbackEvent event) {
-        for (TypedCallbackListener listener : callbackListeners) {
-            listener.handleEvent(event);
-        }
     }
 
     public void messengerConnected(Messenger messenger) {
@@ -189,6 +161,40 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
         message.getData().putString("deregisterListener", null);
         message.getData().putSerializable("eventType", type);
         send(message);
+    }
+
+    private void handleEvent(CallbackEvent event) {
+        for (TypedCallbackListener listener : callbackListeners) {
+            listener.handleEvent(event);
+        }
+    }
+
+    private void handleResult(Message msg) throws Throwable {
+        InvocationResult result = (InvocationResult) msg.getData().getSerializable("result");
+        long resultHandlerId = msg.getData().getLong("resultHandlerId");
+        List<ResultHandlerProxy> handlers =
+            ClientMsgServiceLocator.this.resultHandlers.remove(resultHandlerId);
+        Log.i(getClass().getSimpleName(), "Received result " + result);
+        for (ResultHandlerProxy handler : handlers) {
+            handler.handle(result);
+        }
+    }
+
+    private class ReplyHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            try {
+                if (msg.getData().containsKey("result")) {
+                    handleResult(msg);
+                } else if (msg.getData().containsKey("event")) {
+                    handleEvent((CallbackEvent) msg.getData().getSerializable("event"));
+                } else {
+                    throw new IllegalArgumentException("Unknown message " + msg.getData());
+                }
+            } catch (Throwable t) {
+                defaultHandleException(t);
+            }
+        }
     }
 
 }
