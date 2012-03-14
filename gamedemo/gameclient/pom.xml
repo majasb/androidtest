@@ -21,12 +21,6 @@
         </dependency>
         <dependency>
             <groupId>bratseth.maja.androidtest</groupId>
-            <artifactId>transport-aidl</artifactId>
-            <version>${project.version}</version>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-            <groupId>bratseth.maja.androidtest</groupId>
             <artifactId>transport-messenger</artifactId>
             <version>${project.version}</version>
         </dependency>
