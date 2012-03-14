@@ -14,10 +14,10 @@ import bratseth.maja.androidtest.service.*;
 public class ServiceInvokerMessageHandler extends Handler implements CallbackHandler {
 
     private final String tag = ServiceInvokerMessageHandler.class.getSimpleName();
+    private final boolean verbose = false;
 
     private final ResultHandlerStub resultHandlerStub = new ResultHandlerStub();
 
-    private Serializer serializer;
     private ServiceLocator serviceLocator;
 
     private final Map<Class, List<Messenger>> callbackListenerClients = new HashMap<Class, List<Messenger>>();
@@ -102,11 +102,9 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     }
 
     private void log(String msg) {
-        Log.i(ServiceInvokerMessageHandler.class.getSimpleName(), msg);
-    }
-
-    public void setSerializer(Serializer serializer) {
-        this.serializer = serializer;
+        if (verbose) {
+            Log.i(ServiceInvokerMessageHandler.class.getSimpleName(), msg);
+        }
     }
 
     public void setServiceLocator(ServiceLocator serviceLocator) {

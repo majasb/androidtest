@@ -6,7 +6,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Messenger;
-import bratseth.maja.androidtest.service.JavaSerializationSerializer;
 import bratseth.maja.msgtransport.transport.ServiceInvokerMessageHandler;
 
 /**
@@ -24,8 +23,6 @@ public class ServiceInvokerMessenger extends Service {
 
     @Override
     public void onCreate() {
-        messageHandler.setSerializer(new JavaSerializationSerializer());
-
         final ServiceRegistry serviceRegistry = new ServiceRegistry();
         serviceRegistry.register(GameService.class, new GameServiceImpl(messageHandler));
 
