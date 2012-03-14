@@ -39,16 +39,17 @@ public class GameServiceImpl implements GameService {
         if (position2Piece.containsKey(position)) {
             throw new IllegalArgumentException("Position " + position + " is already occupied");
         }
+        final Position oldPosition = piece2Position.get(piece);
         moveTo(position, piece);
         moveGamePiece();
         final GameState gameState = createBoard();
         resultHandler.result(gameState);
 
-        notifyListeners();
+        notifyListeners(new Move(oldPosition, position));
     }
 
-    private void notifyListeners() {
-        callbackHandler.sendCallback(new GameMoveHappened());
+    private void notifyListeners(Move move) {
+        callbackHandler.sendCallback(new PlayerMoved(move));
     }
 
     @Override

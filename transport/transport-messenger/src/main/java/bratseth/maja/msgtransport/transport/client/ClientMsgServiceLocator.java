@@ -25,17 +25,18 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
 
     private final Context context;
 
-    private final List<TypedCallbackListener> listeners = new ArrayList<TypedCallbackListener>();
-    
-    // queued
-    private final LinkedList<Invocation> commands = new LinkedList<Invocation>();
-    private final Map<Invocation, List<ResultHandlerProxy>> resultHandlersForCommands =
+    // queued wwhile no messenger
+    private final LinkedList<Invocation> commandQueue = new LinkedList<Invocation>();
+    private final Map<Invocation, List<ResultHandlerProxy>> commandQueueHandlers =
         new HashMap<Invocation, List<ResultHandlerProxy>>();
-    private final LinkedList<Class> eventTypes = new LinkedList<Class>();
+    private final LinkedList<Class> eventTypesQueue = new LinkedList<Class>();
 
-    private final Map<Long, List<ResultHandlerProxy>> resultHandlers = new HashMap<Long, List<ResultHandlerProxy>>();
     private Messenger messenger;
     private final Messenger replyHandlerMessenger = new Messenger(new ReplyHandler());
+
+    private final List<TypedCallbackListener> callbackListeners = new ArrayList<TypedCallbackListener>();
+
+    private final Map<Long, List<ResultHandlerProxy>> resultHandlers = new HashMap<Long, List<ResultHandlerProxy>>();
 
     public ClientMsgServiceLocator(Context context) {
         this.context = context;
@@ -76,29 +77,38 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
         }
     }
 
+    public void addListener(TypedCallbackListener callbackListener) {
+        this.callbackListeners.add(callbackListener);
+    }
+
     private void handleEvent(CallbackEvent event) {
-        for (TypedCallbackListener listener : listeners) {
+        for (TypedCallbackListener listener : callbackListeners) {
             listener.handleEvent(event);
         }
     }
 
     public void messengerConnected(Messenger messenger) {
         this.messenger = messenger;
-        while (!commands.isEmpty()) {
-            Invocation command = commands.pop();
-            invokeRemoteService(command, resultHandlersForCommands.remove(command));
+        while (!commandQueue.isEmpty()) {
+            Invocation command = commandQueue.pop();
+            invokeRemoteService(command, commandQueueHandlers.remove(command));
         }
-        while (!eventTypes.isEmpty()) {
-            Class eventType = eventTypes.pop();
+        while (!eventTypesQueue.isEmpty()) {
+            Class eventType = eventTypesQueue.pop();
             registerRemoteListener(eventType);
         }
     }
 
+    public void startEventListening() {
+        for (TypedCallbackListener listener : callbackListeners) {
+            registerRemoteListener(listener.getType());
+        }
+    }
+
     public void stopEventListening() {
-        for (TypedCallbackListener listener : listeners) {
+        for (TypedCallbackListener listener : callbackListeners) {
             deregisterRemoteListener(listener.getType());
         }
-        listeners.clear();
     }
 
     public void messengerDisconnected() {
@@ -132,8 +142,8 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
 
     private void invokeRemoteService(Invocation invocation, List<ResultHandlerProxy> resultHandlers) {
         if (messenger == null) {
-            commands.addLast(invocation);
-            resultHandlersForCommands.put(invocation, resultHandlers);
+            commandQueue.addLast(invocation);
+            commandQueueHandlers.put(invocation, resultHandlers);
             return;
         }
         Message msg = Message.obtain(null, 1);
@@ -163,14 +173,9 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
-    public void addListener(TypedCallbackListener callbackListener) {
-        this.listeners.add(callbackListener);
-        registerRemoteListener(callbackListener.getType());
-    }
-
     private void registerRemoteListener(Class type) {
         if (messenger == null) {
-            eventTypes.add(type);
+            eventTypesQueue.add(type);
             return;
         }
         Message message = Message.obtain();

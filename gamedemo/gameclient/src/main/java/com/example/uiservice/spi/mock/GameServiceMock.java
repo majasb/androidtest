@@ -45,17 +45,18 @@ public class GameServiceMock implements GameService {
     @Override
     public void move(Piece piece, Position position, ResultHandler<GameState> resultHandler) {
         try {
+            final Position oldPosition = piece2Position.get(piece);
             final GameState gameState = invokeMove(piece, position);
             resultHandler.result(gameState);
 
-            nofityListeners();
+            nofityListeners(new Move(oldPosition, position));
         } catch (Exception e) {
             handleException(e, resultHandler);
         }
     }
 
-    private void nofityListeners() {
-        callbackHandler.sendCallback(new GameMoveHappened());
+    private void nofityListeners(Move move) {
+        callbackHandler.sendCallback(new PlayerMoved(move));
     }
 
     @Override

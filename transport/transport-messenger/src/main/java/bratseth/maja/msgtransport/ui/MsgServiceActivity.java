@@ -17,8 +17,7 @@ import bratseth.maja.msgtransport.transport.client.ClientMsgServiceLocator;
  */
 public abstract class MsgServiceActivity extends Activity {
 
-    private ServiceLocator serviceLocator;
-    private EventBroker eventBroker;
+    private ClientMsgServiceLocator serviceLocator;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,9 +28,20 @@ public abstract class MsgServiceActivity extends Activity {
         ServiceConnection messengerConnection = createMessengerConnection(msgServiceLocator);
 
         this.serviceLocator = msgServiceLocator;
-        this.eventBroker = msgServiceLocator;
 
         bindMessenger(messengerConnection);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        serviceLocator.startEventListening();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        serviceLocator.stopEventListening();
     }
 
     private ServiceConnection createMessengerConnection(final ClientMsgServiceLocator serviceExecutor) {
@@ -60,7 +70,7 @@ public abstract class MsgServiceActivity extends Activity {
     }
 
     protected EventBroker getEventBroker() {
-        return eventBroker;
+        return serviceLocator;
     }
     
 }
