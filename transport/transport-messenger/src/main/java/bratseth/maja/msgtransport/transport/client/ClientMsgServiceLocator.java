@@ -1,4 +1,4 @@
-package bratseth.maja.msgtransport.transport;
+package bratseth.maja.msgtransport.transport.client;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -19,7 +19,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
-import bratseth.maja.androidtest.service.ui.EventBroker;
 import bratseth.maja.androidtest.service.TypedCallbackListener;
 
 public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {

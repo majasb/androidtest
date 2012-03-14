@@ -1,4 +1,4 @@
-package bratseth.maja.androidtest.service.ui;
+package bratseth.maja.msgtransport.ui;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -8,8 +8,9 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Messenger;
+import bratseth.maja.androidtest.service.EventBroker;
 import bratseth.maja.androidtest.service.ServiceLocator;
-import bratseth.maja.msgtransport.transport.ClientMsgServiceLocator;
+import bratseth.maja.msgtransport.transport.client.ClientMsgServiceLocator;
 
 /**
  * @author Maja S Bratseth

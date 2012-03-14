@@ -1,6 +1,8 @@
-package bratseth.maja.androidtest.service;
+package bratseth.maja.msgtransport.transport.server;
 
 import java.io.Serializable;
+
+import bratseth.maja.androidtest.service.ResultHandler;
 
 /**
  * @author Maja S Bratseth
@@ -8,16 +10,22 @@ import java.io.Serializable;
 public class ResultHandlerStub implements ResultHandler, Serializable {
 
     private Object result;
+    private Exception exception;
 
     public void result(Object result) {
         this.result = result;
     }
 
     public void exception(Exception exception) {
+        this.exception = exception;
     }
 
     public Object getResult() {
         return result;
+    }
+
+    public Exception getException() {
+        return exception;
     }
 
 }

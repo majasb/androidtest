@@ -1,4 +1,4 @@
-package bratseth.maja.msgtransport.transport;
+package bratseth.maja.msgtransport.transport.server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.ResultHandlerBase;
 import bratseth.maja.androidtest.service.TypedCallbackListener;
-import bratseth.maja.androidtest.service.ui.MsgServiceActivity;
+import bratseth.maja.msgtransport.ui.MsgServiceActivity;
 import com.example.uiservice.spi.*;
 import com.skullab.chess.Chessboard;
 

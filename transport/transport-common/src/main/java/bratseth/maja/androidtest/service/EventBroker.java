@@ -1,6 +1,4 @@
-package bratseth.maja.androidtest.service.ui;
-
-import bratseth.maja.androidtest.service.TypedCallbackListener;
+package bratseth.maja.androidtest.service;
 
 /**
  * @author Maja S Bratseth

@@ -1,12 +1,12 @@
 package com.example.uiservice.gameserver;
 
+import bratseth.maja.msgtransport.transport.server.ServiceInvokerMessageHandler;
 import com.example.uiservice.spi.GameService;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Messenger;
-import bratseth.maja.msgtransport.transport.ServiceInvokerMessageHandler;
 
 /**
  * @author Maja S Bratseth
