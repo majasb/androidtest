@@ -3,7 +3,7 @@
       package="com.example.uiservice.gameserver"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:label="GameServer demo">
+    <application android:label="GameServer demo" android:debuggable="true">
         <service android:name=".ServiceInvokerMessenger">
             <intent-filter>
                 <action android:name="bratseth.maja.androidtest.msgtransport.ServiceInvokerMessenger"/>

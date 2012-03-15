@@ -3,7 +3,7 @@
       package="com.example.uiservice.gameclient"
       android:versionCode="1"
       android:versionName="1.0">
-    <application android:label="GameDemo" android:icon="@drawable/icon">
+    <application android:label="GameDemo" android:icon="@drawable/icon" android:debuggable="true">
         <activity android:name="GameActivity"
                   android:label="Game demo">
             <intent-filter>

@@ -25,7 +25,11 @@ public class GameActivity extends MsgServiceActivity {
     private Button startButton;
     private Button endButton;
 
+
+    private final int numberOfEventsPerTest = 500;
     private int numberOfEvents = 0;
+    
+    private long start;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,8 +64,13 @@ public class GameActivity extends MsgServiceActivity {
             @Override
             public void handle(PlayerMoved callback) {
                 numberOfEvents++;
-                if (numberOfEvents % 1000 == 0) {
-                    Log.i(TAG, "Number of events so far: " + numberOfEvents);
+                if (numberOfEvents % 100 == 0) {
+                    //Log.i(TAG, "Number of events so far: " + numberOfEvents);
+                }
+                if (numberOfEvents == numberOfEventsPerTest) {
+                    long end = System.currentTimeMillis();
+                    Log.i(TAG, "Total time to receive all replies: " + (end - start) + " ms");
+                    numberOfEvents = 0;
                 }
             }
         });
@@ -81,7 +90,9 @@ public class GameActivity extends MsgServiceActivity {
     }
 
     private void runAutomatedGame() {
-        for (int i = 0; i < 50000; i++) {
+        start = System.currentTimeMillis();
+        final int n = 10 * numberOfEventsPerTest;
+        for (int i = 0; i < n; i++) {
             if (i % 10 == 0) {
                 char x = (char) (i % 8);
                 int y = i % 8;
@@ -89,6 +100,8 @@ public class GameActivity extends MsgServiceActivity {
                 makeMove(newPosition);
             }
         }
+        final long end = System.currentTimeMillis();
+        Log.i(TAG, "Total time to send all invocations: " + (end - start) + " ms");
     }
 
     private void endGame() {
