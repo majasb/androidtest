@@ -2,8 +2,6 @@ package bratseth.maja.msgtransport.transport;
 
 import android.os.Message;
 import bratseth.maja.androidtest.service.CallbackEvent;
-import bratseth.maja.androidtest.service.Invocation;
-import bratseth.maja.androidtest.service.InvocationResult;
 
 public class TransportMessages {
 

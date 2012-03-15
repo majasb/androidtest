@@ -1,7 +1,7 @@
 package bratseth.maja.msgtransport.transport.client;
 
 import bratseth.maja.androidtest.service.ExceptionHandler;
-import bratseth.maja.androidtest.service.InvocationResult;
+import bratseth.maja.msgtransport.transport.InvocationResult;
 import bratseth.maja.androidtest.service.ResultHandler;
 
 public class ResultHandlerProxy {

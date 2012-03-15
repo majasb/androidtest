@@ -10,6 +10,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import bratseth.maja.androidtest.service.*;
+import bratseth.maja.msgtransport.transport.Invocation;
+import bratseth.maja.msgtransport.transport.InvocationResult;
 import bratseth.maja.msgtransport.transport.TransportMessages;
 
 public class MessengerServer extends Handler implements CallbackHandler {

@@ -16,6 +16,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.TypedCallbackListener;
+import bratseth.maja.msgtransport.transport.Invocation;
+import bratseth.maja.msgtransport.transport.InvocationResult;
 import bratseth.maja.msgtransport.transport.TransportMessages;
 
 public class MessengerClient implements ServiceLocator, EventBroker {
