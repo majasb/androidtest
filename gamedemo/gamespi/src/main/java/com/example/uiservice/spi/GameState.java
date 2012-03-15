@@ -6,19 +6,19 @@ import java.util.*;
 public class GameState implements Serializable {
 
     private final int playerColor;
-    private final Map<Position, Piece> occupiedPositions = new HashMap<Position, Piece>();
+    private final Map<Position, Piece> positions = new HashMap<Position, Piece>(); // stupidly inefficient representation
 
-    public GameState(int playerColor, Map<Position, Piece> occupiedPositions) {
+    public GameState(int playerColor, Map<Position, Piece> positions) {
         this.playerColor = playerColor;
-        this.occupiedPositions.putAll(occupiedPositions);
+        this.positions.putAll(positions);
     }
 
     public Piece get(Position position) {
-        return occupiedPositions.get(position);
+        return positions.get(position);
     }
 
-    public Iterable<Position> getOccupiedPositions() {
-        return Collections.unmodifiableCollection(occupiedPositions.keySet());
+    public Iterable<Position> getPositions() {
+        return Collections.unmodifiableCollection(positions.keySet());
     }
 
     public boolean isOccupiedByPlayer(Position position) {

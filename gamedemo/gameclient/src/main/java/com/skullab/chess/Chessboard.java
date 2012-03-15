@@ -498,6 +498,11 @@ public class Chessboard extends LinearLayout {
         clearBlackCells(Color.BLACK);
     }
 
+    public void setDefaultDrawableOnCell(Position position) {
+        final String notation = ("" + position.getX()) + position.getY();
+        removeDrawableOnCell(notation);
+    }
+
     /**
 	 * Interface definition for a callback to be invoked when a cell is clicked. 
 	 * @author skullab.com

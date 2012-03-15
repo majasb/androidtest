@@ -2,6 +2,7 @@ package com.example.uiservice.gameclient;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,12 +16,16 @@ import com.skullab.chess.Chessboard;
 
 public class GameActivity extends MsgServiceActivity {
 
+    private static final String TAG = GameActivity.class.getSimpleName();
+
     private GameService gameService;
     private GameState gameState;
     private Chessboard board;
     private Piece selectedPiece;
     private Button startButton;
     private Button endButton;
+
+    private int numberOfEvents = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,10 +59,10 @@ public class GameActivity extends MsgServiceActivity {
         getEventBroker().addListener(new TypedCallbackListener<PlayerMoved>(PlayerMoved.class) {
             @Override
             public void handle(PlayerMoved callback) {
-                final Move move = callback.getMove();
-                Toast.makeText(getApplicationContext(),
-                               "Moved from " + move.getFrom() + " to " + move.getTo(),
-                               Toast.LENGTH_SHORT).show();
+                numberOfEvents++;
+                if (numberOfEvents / 1000 == 0) {
+                    Log.i(TAG, "Number of events so far: " + numberOfEvents);
+                }
             }
         });
     }
@@ -69,8 +74,21 @@ public class GameActivity extends MsgServiceActivity {
                 selectedPiece = null;
                 setGameState(gameState);
                 board.setVisibility(View.VISIBLE);
+                
+                runAutomatedGame();
             }
         });
+    }
+
+    private void runAutomatedGame() {
+        for (int i = 0; i < 50000; i++) {
+            // could prepare the positions in case this ever becomes the bottleneck
+            // or if we want to super stress the remoting
+            char x = (char) (i % 8);
+            int y = i % 8;
+            Position newPosition = new Position(x, y);
+            makeMove(newPosition);
+        }
     }
 
     private void endGame() {
@@ -99,11 +117,19 @@ public class GameActivity extends MsgServiceActivity {
     }
 
     private void updateUi() {
-        board.clearAll();
-        for (Position position : gameState.getOccupiedPositions()) {
+        // let's just assume it's really fast
+        // but as a separate test, we should check whether the remoting takes enough time on the ui thread
+        // that it becomes visible
+        /*
+        for (Position position : gameState.getPositions()) {
             Piece piece = gameState.get(position);
-            board.setDrawableOnCell(position, createDrawable(piece));
+            if (piece == null) {
+                board.setDefaultDrawableOnCell(position);
+            } else {
+                board.setDrawableOnCell(position, createDrawable(piece));
+            }
         }
+        */
     }
 
     private ColorDrawable createDrawable(Piece piece) {
