@@ -10,20 +10,20 @@ import android.os.IBinder;
 import android.os.Messenger;
 import bratseth.maja.androidtest.service.EventBroker;
 import bratseth.maja.androidtest.service.ServiceLocator;
-import bratseth.maja.msgtransport.transport.client.ClientMsgServiceLocator;
+import bratseth.maja.msgtransport.transport.client.MessengerClient;
 
 /**
  * @author Maja S Bratseth
  */
 public abstract class MsgServiceActivity extends Activity {
 
-    private ClientMsgServiceLocator serviceLocator;
+    private MessengerClient serviceLocator;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ClientMsgServiceLocator msgServiceLocator = new ClientMsgServiceLocator(getApplicationContext());
+        final MessengerClient msgServiceLocator = new MessengerClient(getApplicationContext());
 
         ServiceConnection messengerConnection = createMessengerConnection(msgServiceLocator);
 
@@ -44,7 +44,7 @@ public abstract class MsgServiceActivity extends Activity {
         serviceLocator.stopEventListening();
     }
 
-    private ServiceConnection createMessengerConnection(final ClientMsgServiceLocator serviceExecutor) {
+    private ServiceConnection createMessengerConnection(final MessengerClient serviceExecutor) {
         return new ServiceConnection() {
             public void onServiceConnected(ComponentName name, IBinder binder) {
                 Messenger messenger = new Messenger(binder);

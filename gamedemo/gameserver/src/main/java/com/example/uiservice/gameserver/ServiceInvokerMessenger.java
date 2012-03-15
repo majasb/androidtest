@@ -1,6 +1,6 @@
 package com.example.uiservice.gameserver;
 
-import bratseth.maja.msgtransport.transport.server.ServiceInvokerMessageHandler;
+import bratseth.maja.msgtransport.transport.server.MessengerServer;
 import com.example.uiservice.spi.GameService;
 
 import android.app.Service;
@@ -13,7 +13,7 @@ import android.os.Messenger;
  */
 public class ServiceInvokerMessenger extends Service {
 
-    private final ServiceInvokerMessageHandler messageHandler = new ServiceInvokerMessageHandler();
+    private final MessengerServer messageHandler = new MessengerServer();
     private final Messenger messenger = new Messenger(messageHandler);
 
     @Override

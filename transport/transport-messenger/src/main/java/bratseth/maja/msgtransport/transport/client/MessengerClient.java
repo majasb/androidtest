@@ -9,19 +9,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import android.os.*;
 import bratseth.maja.androidtest.service.*;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 import bratseth.maja.androidtest.service.TypedCallbackListener;
+import bratseth.maja.msgtransport.transport.TransportMessages;
 
-public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
+public class MessengerClient implements ServiceLocator, EventBroker {
 
     private final Context context;
 
@@ -29,7 +26,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
     private final LinkedList<Invocation> commandQueue = new LinkedList<Invocation>();
     private final Map<Invocation, List<ResultHandlerProxy>> commandQueueHandlers =
         new HashMap<Invocation, List<ResultHandlerProxy>>();
-    private final LinkedList<Class> eventTypesQueue = new LinkedList<Class>();
+    private final LinkedList<Class> callbackEventTypeQueue = new LinkedList<Class>();
 
     private Messenger messenger;
     private final Messenger replyHandlerMessenger = new Messenger(new ReplyHandler());
@@ -38,7 +35,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
 
     private final Map<Long, List<ResultHandlerProxy>> resultHandlers = new HashMap<Long, List<ResultHandlerProxy>>();
 
-    public ClientMsgServiceLocator(Context context) {
+    public MessengerClient(Context context) {
         this.context = context;
     }
 
@@ -65,8 +62,8 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
             Invocation command = commandQueue.pop();
             invokeRemoteService(command, commandQueueHandlers.remove(command));
         }
-        while (!eventTypesQueue.isEmpty()) {
-            Class eventType = eventTypesQueue.pop();
+        while (!callbackEventTypeQueue.isEmpty()) {
+            Class eventType = callbackEventTypeQueue.pop();
             registerRemoteListener(eventType);
         }
     }
@@ -79,7 +76,7 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
 
     public void stopEventListening() {
         for (TypedCallbackListener listener : callbackListeners) {
-            deregisterRemoteListener(listener.getType());
+            unregisterRemoteListener(listener.getType());
         }
     }
 
@@ -88,28 +85,32 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
     }
 
     private void invokeService(Class type, Method method, Object[] parameters) {
-        List<ResultHandlerProxy> resultHandlers = new ArrayList<ResultHandlerProxy>();
-        Object[] adjustedParameters = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            final Object parameter = parameters[i];
-            final Object placeholderParameter;
-            if (parameter instanceof ResultHandler) {
-                final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ResultHandler) parameter);
-                resultHandlers.add(proxy);
-                placeholderParameter = null;
-            } else if (parameter instanceof ExceptionHandler) {
-                final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
-                resultHandlers.add(proxy);
-                placeholderParameter = null;
-            }
-            else {
-                placeholderParameter = parameter;
-            }
-            adjustedParameters[i] = placeholderParameter;
+        Class[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length > 0
+            && ExceptionHandler.class.isAssignableFrom(parameterTypes[parameterTypes.length - 1])) {
+
+            List<ResultHandlerProxy> resultHandlers = new ArrayList<ResultHandlerProxy>();
+                    Object[] adjustedParameters = new Object[parameters.length];
+                    for (int i = 0; i < parameters.length; i++) {
+                        final Object parameter = parameters[i];
+                        final Object placeholderParameter;
+                        if (parameter instanceof ExceptionHandler) {
+                            final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
+                            resultHandlers.add(proxy);
+                            placeholderParameter = null;
+                        }
+                        else {
+                            placeholderParameter = parameter;
+                        }
+                        adjustedParameters[i] = placeholderParameter;
+                    }
+                    final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(),
+                                                                 adjustedParameters);
+                    invokeRemoteService(invocation, resultHandlers);
+
+        } else {
+            invokeRemoteService(new Invocation(type, method.getName(), method.getParameterTypes(), parameters));
         }
-        final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(),
-                                                     adjustedParameters);
-        invokeRemoteService(invocation, resultHandlers);
     }
 
     private void invokeRemoteService(Invocation invocation, List<ResultHandlerProxy> resultHandlers) {
@@ -118,16 +119,10 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
             commandQueueHandlers.put(invocation, resultHandlers);
             return;
         }
-        Message msg = Message.obtain(null, 1);
-        Bundle data = new Bundle();
-        data.putSerializable("invocation", invocation);
-        msg.setData(data);
-
         long handlerId = System.identityHashCode(resultHandlers);
-        data.putLong("resultHandlerId", handlerId);
         this.resultHandlers.put(handlerId, resultHandlers);
 
-        send(msg);
+        send(TransportMessages.createInvocation(invocation, handlerId));
     }
 
     private void send(Message msg) {
@@ -145,51 +140,51 @@ public class ClientMsgServiceLocator implements ServiceLocator, EventBroker {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
-    private void registerRemoteListener(Class type) {
+    private void registerRemoteListener(Class callbackEventType) {
         if (messenger == null) {
-            eventTypesQueue.add(type);
+            callbackEventTypeQueue.add(callbackEventType);
             return;
         }
-        Message message = Message.obtain();
-        message.getData().putString("registerListener", null);
-        message.getData().putSerializable("eventType", type);
-        send(message);
+        send(TransportMessages.createRegisterListener(callbackEventType));
     }
 
-    private void deregisterRemoteListener(Class type) {
-        Message message = Message.obtain();
-        message.getData().putString("deregisterListener", null);
-        message.getData().putSerializable("eventType", type);
-        send(message);
+    private void unregisterRemoteListener(Class callbackEventType) {
+        if (messenger != null) {
+            send(TransportMessages.createUnregisterListener(callbackEventType));
+        }
     }
 
-    private void handleEvent(CallbackEvent event) {
+    private void handleCallbackEvent(Message message) {
+        CallbackEvent callbackEvent = TransportMessages.extractCallback(message);
         for (TypedCallbackListener listener : callbackListeners) {
-            listener.handleEvent(event);
+            listener.handleEvent(callbackEvent);
         }
     }
 
     private void handleResult(Message msg) throws Throwable {
-        InvocationResult result = (InvocationResult) msg.getData().getSerializable("result");
+        InvocationResult result = TransportMessages.extractInvocationResult(msg);
         long resultHandlerId = msg.getData().getLong("resultHandlerId");
         List<ResultHandlerProxy> handlers =
-            ClientMsgServiceLocator.this.resultHandlers.remove(resultHandlerId);
-        Log.i(getClass().getSimpleName(), "Received result " + result);
+            MessengerClient.this.resultHandlers.remove(resultHandlerId);
         for (ResultHandlerProxy handler : handlers) {
             handler.handle(result);
         }
+    }
+
+    private String toLogString(Message msg) {
+        return "" + msg.what + ": " + msg.getData();
     }
 
     private class ReplyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             try {
-                if (msg.getData().containsKey("result")) {
+                if (msg.what == TransportMessages.MSG_REPLY) {
                     handleResult(msg);
-                } else if (msg.getData().containsKey("event")) {
-                    handleEvent((CallbackEvent) msg.getData().getSerializable("event"));
+                } else if (msg.what == TransportMessages.MSG_CALLBACK) {
+                    handleCallbackEvent(msg);
                 } else {
-                    throw new IllegalArgumentException("Unknown message " + msg.getData());
+                    throw new IllegalArgumentException("Unknown message " + toLogString(msg));
                 }
             } catch (Throwable t) {
                 defaultHandleException(t);

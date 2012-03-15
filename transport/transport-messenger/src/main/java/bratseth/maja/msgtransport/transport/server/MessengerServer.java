@@ -10,10 +10,11 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import bratseth.maja.androidtest.service.*;
+import bratseth.maja.msgtransport.transport.TransportMessages;
 
-public class ServiceInvokerMessageHandler extends Handler implements CallbackHandler {
+public class MessengerServer extends Handler implements CallbackHandler {
 
-    private final String tag = ServiceInvokerMessageHandler.class.getSimpleName();
+    private final String tag = MessengerServer.class.getSimpleName();
 
     private final Map<Class, List<Messenger>> callbackListenerClients = new HashMap<Class, List<Messenger>>();
 
@@ -29,36 +30,39 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
             if (message.replyTo == null) {
                 throw new IllegalArgumentException("No replyTo in " + message.getData());
             }
-            if (message.getData().containsKey("registerListener")) {
+            if (message.what == TransportMessages.MSG_REGISTER_LISTENER) {
                 registerListener(message);
-            } else if (message.getData().containsKey("unregisterListener")) {
+            } else if (message.what == TransportMessages.MSG_UNREGISTER_LISTENER) {
                 unregisterListener(message);
-            } else if (message.getData().containsKey("invocation")) {
+            } else if (message.what == TransportMessages.MSG_INVOKE) {
                 handleInvocation(message);
             } else {
-                throw new IllegalArgumentException("Unexpected message " + message.getData());
+                throw new IllegalArgumentException("Unexpected message " + toLogString(message));
             }
         } catch (Throwable e) {
             try {
-                Log.e(tag, "Caught exception. Passing on to client. Data: " + message.getData(), e);
+                Log.e(tag, "Caught exception. Passing on to client. Data: " + toLogString(message), e);
                 Message replyMessage = createReply(message, InvocationResult.exception(e));
                 message.replyTo.send(replyMessage);
             } catch (Exception e2) {
-                final String msg = "Caught exception and could not send it as reply. Time: " + System.currentTimeMillis();
-                Log.e(tag, msg, e);
+                Log.e(tag, "Caught exception and could not send it as reply", e);
             }
         }
     }
 
+    private String toLogString(Message message) {
+        return message.what + ": " + message.getData();
+    }
+
     private void handleInvocation(Message message) throws Throwable {
-        Invocation invocation = (Invocation) message.getData().getSerializable("invocation");
+        Invocation invocation = TransportMessages.extractInvocation(message);
         Object result = invokeService(invocation);
         Message replyMessage = createReply(message, InvocationResult.normalResult(result));
         message.replyTo.send(replyMessage);
     }
 
     private void registerListener(Message message) {
-        final Class eventType = (Class) message.getData().getSerializable("eventType");
+        final Class eventType = TransportMessages.extractEventType(message);
         List<Messenger> messengers = callbackListenerClients.get(eventType);
         if (messengers == null) {
             messengers = new ArrayList<Messenger>();
@@ -68,7 +72,7 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     }
     
     private void unregisterListener(Message message) {
-        final Class eventType = (Class) message.getData().getSerializable("eventType");
+        final Class eventType = TransportMessages.extractEventType(message);
         List<Messenger> messengers = callbackListenerClients.get(eventType);
         if (messengers != null) {
             messengers.remove(message.replyTo);
@@ -81,10 +85,9 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     public void sendCallback(CallbackEvent callback) {
         if (callbackListenerClients.containsKey(callback.getClass())) {
             for (Messenger client : callbackListenerClients.get(callback.getClass())) {
-                Message event = Message.obtain();
-                event.getData().putSerializable("event", callback);
+                Message callbackMessage = TransportMessages.createCallback(callback);
                 try {
-                    client.send(event);
+                    client.send(callbackMessage);
                 }
                 catch (RemoteException e) {
                     // TODO: Maybe remove client
@@ -95,26 +98,22 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
     }
 
     private Message createReply(Message invocationMessage, InvocationResult result) {
-        Message replyMessage = Message.obtain();
-        replyMessage.getData().putSerializable("result", result);
-        replyMessage.getData().putLong("resultHandlerId", invocationMessage.getData().getLong("resultHandlerId"));
-        return replyMessage;
+        return TransportMessages.createInvocationReply(invocationMessage, result);
     }
 
     private Object invokeService(Invocation invocation) throws Throwable {
-        Method method = findMethod(invocation);
+        Method method = getMethod(invocation);
         Object service = getService(invocation.getServiceType());
         try {
-            // only supports one resulthandler/exceptionhandler for now
-            final Class[] parameterClasses = invocation.getParameterClasses();
-            if (parameterClasses.length > 0
-                && ExceptionHandler.class.isAssignableFrom(parameterClasses[parameterClasses.length - 1])) {
+            final Class[] parameterTypes = invocation.getParameterClasses();
+            if (parameterTypes.length > 0
+                && ExceptionHandler.class.isAssignableFrom(parameterTypes[parameterTypes.length - 1])) {
 
-                Class lastParameterType = parameterClasses[parameterClasses.length - 1];
                 ResultHandlerStub resultHandlerStub = new ResultHandlerStub();
-                Object[] modifiedParameters = new Object[parameterClasses.length];
-                System.arraycopy(invocation.getParameters(), 0, modifiedParameters, 0, parameterClasses.length - 1);
-                modifiedParameters[parameterClasses.length - 1] = resultHandlerStub;
+                Object[] modifiedParameters = new Object[parameterTypes.length];
+                System.arraycopy(invocation.getParameters(), 0, modifiedParameters, 0, parameterTypes.length - 1);
+                modifiedParameters[parameterTypes.length - 1] = resultHandlerStub;
+
                 method.invoke(service, modifiedParameters);
                 if (!resultHandlerStub.hasBeenSet()) {
                     throw new IllegalStateException("Expected a result from invocation " + invocation);
@@ -139,7 +138,7 @@ public class ServiceInvokerMessageHandler extends Handler implements CallbackHan
         return service;
     }
 
-    private Method findMethod(Invocation invocation) throws Exception {
+    private Method getMethod(Invocation invocation) throws Exception {
         return invocation.getServiceType().getMethod(invocation.getMethodName(), invocation.getParameterClasses());
     }
 
