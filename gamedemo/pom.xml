@@ -16,7 +16,6 @@
     <modules>
       <module>gamespi</module>
       <module>gameclient</module>
-      <module>ptestclient</module>
       <module>gameserver</module>
     </modules>
     
