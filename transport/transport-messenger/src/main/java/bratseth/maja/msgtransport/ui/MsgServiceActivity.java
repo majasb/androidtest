@@ -14,41 +14,40 @@ import bratseth.maja.msgtransport.transport.client.MessengerClient;
 
 public abstract class MsgServiceActivity extends Activity {
 
-    private MessengerClient serviceLocator;
+    private MessengerClient messengerClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final MessengerClient msgServiceLocator = new MessengerClient(getApplicationContext());
+        final MessengerClient messengerClient = new MessengerClient(getApplicationContext());
 
-        ServiceConnection messengerConnection = createMessengerConnection(msgServiceLocator);
-
-        this.serviceLocator = msgServiceLocator;
-
+        ServiceConnection messengerConnection = createMessengerConnection(messengerClient);
         bindMessenger(messengerConnection);
+
+        this.messengerClient = messengerClient;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        serviceLocator.startEventListening();
+        messengerClient.startEventListening();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        serviceLocator.stopEventListening();
+        messengerClient.stopEventListening();
     }
 
-    private ServiceConnection createMessengerConnection(final MessengerClient serviceExecutor) {
+    private ServiceConnection createMessengerConnection(final MessengerClient messengerClient) {
         return new ServiceConnection() {
             public void onServiceConnected(ComponentName name, IBinder binder) {
                 Messenger messenger = new Messenger(binder);
-                serviceExecutor.messengerConnected(messenger);
+                messengerClient.messengerConnected(messenger);
             }
             public void onServiceDisconnected(ComponentName name) {
-                serviceExecutor.messengerDisconnected();
+                messengerClient.messengerDisconnected();
             }
         };
     }
@@ -63,11 +62,11 @@ public abstract class MsgServiceActivity extends Activity {
     }
 
     protected ServiceLocator getServiceLocator() {
-        return serviceLocator;
+        return messengerClient;
     }
 
     protected EventBroker getEventBroker() {
-        return serviceLocator;
+        return messengerClient;
     }
     
 }

@@ -28,7 +28,7 @@ public class MessengerServer extends Handler implements CallbackHandler {
     public void handleMessage(Message message) {
         try {
             if (message.replyTo == null) {
-                throw new IllegalArgumentException("No replyTo in " + message.getData());
+                throw new IllegalArgumentException("No replyTo in " + toLogString(message));
             }
             if (message.what == TransportMessages.MSG_REGISTER_LISTENER) {
                 registerListener(message);

@@ -2,9 +2,6 @@ package com.example.uiservice.spi;
 
 import java.io.Serializable;
 
-/**
- * @author Maja S Bratseth
- */
 public class Position implements Serializable {
 
     private char x;

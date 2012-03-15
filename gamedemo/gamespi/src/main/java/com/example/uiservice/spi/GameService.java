@@ -3,9 +3,6 @@ package com.example.uiservice.spi;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
 
-/**
- * @author Maja S Bratseth
- */
 public interface GameService {
 
     void startGame(ResultHandler<GameState> resultHandler);
