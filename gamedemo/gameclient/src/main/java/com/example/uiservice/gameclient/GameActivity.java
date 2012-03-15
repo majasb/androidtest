@@ -60,7 +60,7 @@ public class GameActivity extends MsgServiceActivity {
             @Override
             public void handle(PlayerMoved callback) {
                 numberOfEvents++;
-                if (numberOfEvents / 1000 == 0) {
+                if (numberOfEvents % 1000 == 0) {
                     Log.i(TAG, "Number of events so far: " + numberOfEvents);
                 }
             }
@@ -82,12 +82,12 @@ public class GameActivity extends MsgServiceActivity {
 
     private void runAutomatedGame() {
         for (int i = 0; i < 50000; i++) {
-            // could prepare the positions in case this ever becomes the bottleneck
-            // or if we want to super stress the remoting
-            char x = (char) (i % 8);
-            int y = i % 8;
-            Position newPosition = new Position(x, y);
-            makeMove(newPosition);
+            if (i % 10 == 0) {
+                char x = (char) (i % 8);
+                int y = i % 8;
+                Position newPosition = new Position(x, y);
+                makeMove(newPosition);
+            }
         }
     }
 
@@ -117,9 +117,6 @@ public class GameActivity extends MsgServiceActivity {
     }
 
     private void updateUi() {
-        // let's just assume it's really fast
-        // but as a separate test, we should check whether the remoting takes enough time on the ui thread
-        // that it becomes visible
         /*
         for (Position position : gameState.getPositions()) {
             Piece piece = gameState.get(position);
