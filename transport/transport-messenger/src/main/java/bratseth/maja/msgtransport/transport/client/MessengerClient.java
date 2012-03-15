@@ -25,8 +25,7 @@ public class MessengerClient implements ServiceLocator, EventBroker {
 
     // queued while no messenger
     private final LinkedList<Invocation> commandQueue = new LinkedList<Invocation>();
-    private final Map<Invocation, List<ResultHandlerProxy>> commandQueueHandlers =
-        new HashMap<Invocation, List<ResultHandlerProxy>>();
+    private final Map<Invocation, ResultHandlerProxy> commandQueueHandlers = new HashMap<Invocation, ResultHandlerProxy>();
     private final LinkedList<Class> callbackEventTypeQueue = new LinkedList<Class>();
 
     private Messenger messenger;
@@ -34,7 +33,7 @@ public class MessengerClient implements ServiceLocator, EventBroker {
 
     private final List<TypedCallbackListener> callbackListeners = new ArrayList<TypedCallbackListener>();
 
-    private final Map<Long, List<ResultHandlerProxy>> resultHandlers = new HashMap<Long, List<ResultHandlerProxy>>();
+    private final Map<Long, ResultHandlerProxy> resultHandlers = new HashMap<Long, ResultHandlerProxy>();
 
     public MessengerClient(Context context) {
         this.context = context;
@@ -86,42 +85,33 @@ public class MessengerClient implements ServiceLocator, EventBroker {
     }
 
     private void invokeService(Class type, Method method, Object[] parameters) {
-        Class[] parameterTypes = method.getParameterTypes();
+        // Invoke service, but remove result/exception handlers, create proxy to handle asynchronous result
+        final Class[] parameterTypes = method.getParameterTypes();
+        final ResultHandlerProxy resultHandlerProxy;
+        final Object[] adjustedParameters;
         if (parameterTypes.length > 0
             && ExceptionHandler.class.isAssignableFrom(parameterTypes[parameterTypes.length - 1])) {
 
-            List<ResultHandlerProxy> resultHandlers = new ArrayList<ResultHandlerProxy>();
-            Object[] adjustedParameters = new Object[parameters.length];
-            for (int i = 0; i < parameters.length; i++) {
-                final Object parameter = parameters[i];
-                final Object placeholderParameter;
-                if (parameter instanceof ExceptionHandler) {
-                    final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
-                    resultHandlers.add(proxy);
-                    placeholderParameter = null;
-                }
-                else {
-                    placeholderParameter = parameter;
-                }
-                adjustedParameters[i] = placeholderParameter;
-            }
-            final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(),
-                                                         adjustedParameters);
-            invokeRemoteService(invocation, resultHandlers);
+            resultHandlerProxy = ResultHandlerProxy.createFor((ExceptionHandler) parameters[parameterTypes.length - 1]);
+            adjustedParameters = new Object[parameters.length];
+            System.arraycopy(parameters, 0, adjustedParameters, 0, parameterTypes.length - 1);
+            adjustedParameters[parameters.length - 1] = null; // not needed on the server
         } else {
-            invokeRemoteService(new Invocation(type, method.getName(), method.getParameterTypes(), parameters),
-                                Collections.<ResultHandlerProxy>emptyList());
+            resultHandlerProxy = ResultHandlerProxy.createFor(null);
+            adjustedParameters = parameters;
         }
+        final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(), adjustedParameters);
+        invokeRemoteService(invocation, resultHandlerProxy);
     }
 
-    private void invokeRemoteService(Invocation invocation, List<ResultHandlerProxy> resultHandlers) {
+    private void invokeRemoteService(Invocation invocation, ResultHandlerProxy resultHandler) {
         if (messenger == null) {
             commandQueue.addLast(invocation);
-            commandQueueHandlers.put(invocation, resultHandlers);
+            commandQueueHandlers.put(invocation, resultHandler);
             return;
         }
-        long handlerId = System.identityHashCode(resultHandlers);
-        this.resultHandlers.put(handlerId, resultHandlers);
+        long handlerId = System.identityHashCode(resultHandler);
+        this.resultHandlers.put(handlerId, resultHandler);
 
         send(TransportMessages.createInvocation(invocation, handlerId));
     }
@@ -164,12 +154,9 @@ public class MessengerClient implements ServiceLocator, EventBroker {
 
     private void handleResult(Message msg) throws Throwable {
         InvocationResult result = TransportMessages.extractInvocationResult(msg);
-        long resultHandlerId = msg.getData().getLong("resultHandlerId");
-        List<ResultHandlerProxy> handlers =
-            MessengerClient.this.resultHandlers.remove(resultHandlerId);
-        for (ResultHandlerProxy handler : handlers) {
-            handler.handle(result);
-        }
+        long resultHandlerId = TransportMessages.extractResultHandlerId(msg);
+        ResultHandlerProxy handler = MessengerClient.this.resultHandlers.remove(resultHandlerId);
+        handler.handle(result);
     }
 
     private String toLogString(Message msg) {

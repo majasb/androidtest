@@ -2,10 +2,10 @@ package bratseth.maja.androidtest.service;
 
 public class ResultHandlerProxy {
 
-    private final ExceptionHandler exceptionHandler;
+    private final ExceptionHandler handler;
 
-    private ResultHandlerProxy(ExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
+    private ResultHandlerProxy(ExceptionHandler handler) {
+        this.handler = handler;
     }
 
     public static ResultHandlerProxy createFor(ExceptionHandler exceptionHandler) {
@@ -14,16 +14,16 @@ public class ResultHandlerProxy {
 
     public void handle(InvocationResult invocationResult) throws Throwable {
         if (invocationResult.isException()) {
-            if (invocationResult.getException() instanceof Exception) {
-                exceptionHandler.exception((Exception) invocationResult.getException());
+            if (invocationResult.getException() instanceof Exception && handler != null) {
+                handler.exception((Exception) invocationResult.getException());
             } else {
                 throw invocationResult.getException();
             }
         } else {
-            if (!(exceptionHandler instanceof ResultHandler) && invocationResult.getResult() != null) {
+            if (!(handler instanceof ResultHandler) && invocationResult.getResult() != null) {
                 throw new IllegalStateException("Expected no result but got " + invocationResult.getResult());
             }
-            ((ResultHandler) exceptionHandler).result(invocationResult.getResult());
+            ((ResultHandler) handler).result(invocationResult.getResult());
         }
     }
 

@@ -33,7 +33,7 @@ public class TransportMessages {
         return replyMessage;
     }
 
-    private static long extractResultHandlerId(Message invocationMessage) {
+    public static long extractResultHandlerId(Message invocationMessage) {
         return invocationMessage.getData().getLong("resultHandlerId");
     }
 
