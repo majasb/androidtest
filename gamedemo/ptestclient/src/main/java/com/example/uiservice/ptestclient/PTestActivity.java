@@ -13,7 +13,7 @@ import com.example.uiservice.spi.*;
 import com.example.uiservice.spi.events.PlayerMoved;
 import com.skullab.chess.Chessboard;
 
-public class GameActivity extends MsgServiceActivity {
+public class PTestActivity extends MsgServiceActivity {
 
     private GameService gameService;
     private GameState gameState;
@@ -99,7 +99,6 @@ public class GameActivity extends MsgServiceActivity {
     }
 
     private void updateUi() {
-        board.clearAll();
         for (Position position : gameState.getOccupiedPositions()) {
             Piece piece = gameState.get(position);
             board.setDrawableOnCell(position, createDrawable(piece));
