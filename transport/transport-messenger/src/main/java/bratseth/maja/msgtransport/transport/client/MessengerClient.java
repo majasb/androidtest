@@ -147,7 +147,9 @@ public class MessengerClient implements ServiceLocator, EventBroker {
     private void handleCallbackEvent(Message message) {
         CallbackEvent callbackEvent = TransportMessages.extractCallback(message);
         for (TypedCallbackListener listener : callbackListeners) {
-            listener.handleEvent(callbackEvent);
+            if (listener.getType().equals(callbackEvent.getClass())) {
+                listener.handleEvent(callbackEvent);
+            }
         }
     }
 
