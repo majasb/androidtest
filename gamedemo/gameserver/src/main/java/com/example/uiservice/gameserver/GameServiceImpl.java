@@ -8,6 +8,7 @@ import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
 
 import com.example.uiservice.spi.*;
+import com.example.uiservice.spi.events.PlayerMoved;
 
 /**
  * @author Maja S Bratseth
