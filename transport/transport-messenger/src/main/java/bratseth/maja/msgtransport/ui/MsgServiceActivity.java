@@ -12,9 +12,6 @@ import bratseth.maja.androidtest.service.EventBroker;
 import bratseth.maja.androidtest.service.ServiceLocator;
 import bratseth.maja.msgtransport.transport.client.MessengerClient;
 
-/**
- * @author Maja S Bratseth
- */
 public abstract class MsgServiceActivity extends Activity {
 
     private MessengerClient serviceLocator;

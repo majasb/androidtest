@@ -4,9 +4,6 @@ import java.util.*;
 
 import bratseth.maja.androidtest.service.ServiceLocator;
 
-/**
- * @author Maja S Bratseth
- */
 public class ServiceRegistry implements ServiceLocator {
     
     private final Map<Class, Object> services = new HashMap<Class, Object>();

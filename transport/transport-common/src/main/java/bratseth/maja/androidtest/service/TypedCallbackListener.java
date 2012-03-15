@@ -1,8 +1,5 @@
 package bratseth.maja.androidtest.service;
 
-/**
- * @author Maja S Bratseth
- */
 public abstract class TypedCallbackListener<T extends CallbackEvent> {
 
     private final Class<T> type;

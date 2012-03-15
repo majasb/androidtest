@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 import bratseth.maja.androidtest.service.ResultHandler;
 
-/**
- * @author Maja S Bratseth
- */
 public class ResultHandlerStub implements ResultHandler, Serializable {
 
     private boolean hasBeenSet = false;

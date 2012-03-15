@@ -5,9 +5,6 @@ import bratseth.maja.androidtest.service.CallbackEvent;
 import bratseth.maja.androidtest.service.Invocation;
 import bratseth.maja.androidtest.service.InvocationResult;
 
-/**
- * @author Maja S Bratseth
- */
 public class TransportMessages {
 
     public static final int MSG_INVOKE = 0;

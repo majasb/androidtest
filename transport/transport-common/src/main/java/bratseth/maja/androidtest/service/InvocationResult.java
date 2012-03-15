@@ -2,9 +2,6 @@ package bratseth.maja.androidtest.service;
 
 import java.io.Serializable;
 
-/**
- * @author Maja S Bratseth
- */
 public class InvocationResult implements Serializable {
     
     private final Object result;

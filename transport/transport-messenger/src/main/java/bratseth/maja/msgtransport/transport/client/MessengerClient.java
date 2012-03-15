@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class MessengerClient implements ServiceLocator, EventBroker {
 
     private final Context context;
 
-    // queued wwhile no messenger
+    // queued while no messenger
     private final LinkedList<Invocation> commandQueue = new LinkedList<Invocation>();
     private final Map<Invocation, List<ResultHandlerProxy>> commandQueueHandlers =
         new HashMap<Invocation, List<ResultHandlerProxy>>();
@@ -90,26 +91,26 @@ public class MessengerClient implements ServiceLocator, EventBroker {
             && ExceptionHandler.class.isAssignableFrom(parameterTypes[parameterTypes.length - 1])) {
 
             List<ResultHandlerProxy> resultHandlers = new ArrayList<ResultHandlerProxy>();
-                    Object[] adjustedParameters = new Object[parameters.length];
-                    for (int i = 0; i < parameters.length; i++) {
-                        final Object parameter = parameters[i];
-                        final Object placeholderParameter;
-                        if (parameter instanceof ExceptionHandler) {
-                            final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
-                            resultHandlers.add(proxy);
-                            placeholderParameter = null;
-                        }
-                        else {
-                            placeholderParameter = parameter;
-                        }
-                        adjustedParameters[i] = placeholderParameter;
-                    }
-                    final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(),
-                                                                 adjustedParameters);
-                    invokeRemoteService(invocation, resultHandlers);
-
+            Object[] adjustedParameters = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                final Object parameter = parameters[i];
+                final Object placeholderParameter;
+                if (parameter instanceof ExceptionHandler) {
+                    final ResultHandlerProxy proxy = ResultHandlerProxy.createFor((ExceptionHandler) parameter);
+                    resultHandlers.add(proxy);
+                    placeholderParameter = null;
+                }
+                else {
+                    placeholderParameter = parameter;
+                }
+                adjustedParameters[i] = placeholderParameter;
+            }
+            final Invocation invocation = new Invocation(type, method.getName(), method.getParameterTypes(),
+                                                         adjustedParameters);
+            invokeRemoteService(invocation, resultHandlers);
         } else {
-            invokeRemoteService(new Invocation(type, method.getName(), method.getParameterTypes(), parameters));
+            invokeRemoteService(new Invocation(type, method.getName(), method.getParameterTypes(), parameters),
+                                Collections.<ResultHandlerProxy>emptyList());
         }
     }
 

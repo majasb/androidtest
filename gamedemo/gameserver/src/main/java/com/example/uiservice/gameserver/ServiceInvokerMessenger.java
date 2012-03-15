@@ -8,9 +8,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.Messenger;
 
-/**
- * @author Maja S Bratseth
- */
 public class ServiceInvokerMessenger extends Service {
 
     private final MessengerServer messageHandler = new MessengerServer();
