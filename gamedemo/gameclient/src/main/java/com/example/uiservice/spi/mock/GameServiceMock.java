@@ -6,7 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.Toast;
-import bratseth.maja.androidtest.service.CallbackHandler;
+import bratseth.maja.androidtest.service.EventPublisher;
 import bratseth.maja.androidtest.service.ExceptionHandler;
 import bratseth.maja.androidtest.service.ResultHandler;
 
@@ -16,16 +16,16 @@ import com.example.uiservice.spi.events.PlayerMoved;
 public class GameServiceMock implements GameService {
     
     private final Context context;
-    private final CallbackHandler callbackHandler;
+    private final EventPublisher eventPublisher;
 
     private final Map<Position, Piece> position2Piece = new HashMap<Position, Piece>();
     private final Map<Piece, Position> piece2Position = new HashMap<Piece, Position>();
 
     private final Piece gamePiece = new Piece(Color.GREEN);
 
-    public GameServiceMock(Context context, CallbackHandler callbackHandler) {
+    public GameServiceMock(Context context, EventPublisher eventPublisher) {
         this.context = context;
-        this.callbackHandler = callbackHandler;
+        this.eventPublisher = eventPublisher;
     }
 
     // exception handling would not be in the service implementation, but in an infrastructure layer
@@ -57,7 +57,7 @@ public class GameServiceMock implements GameService {
     }
 
     private void nofityListeners(Move move) {
-        callbackHandler.sendCallback(new PlayerMoved(move));
+        eventPublisher.publishEvent(new PlayerMoved(move));
     }
 
     @Override

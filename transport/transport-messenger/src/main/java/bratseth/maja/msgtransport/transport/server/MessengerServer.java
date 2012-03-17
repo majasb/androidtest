@@ -14,7 +14,7 @@ import bratseth.maja.msgtransport.transport.Invocation;
 import bratseth.maja.msgtransport.transport.InvocationResult;
 import bratseth.maja.msgtransport.transport.TransportMessages;
 
-public class MessengerServer extends Handler implements CallbackHandler {
+public class MessengerServer extends Handler implements EventPublisher {
 
     private final String tag = MessengerServer.class.getSimpleName();
 
@@ -44,7 +44,7 @@ public class MessengerServer extends Handler implements CallbackHandler {
         } catch (Throwable e) {
             try {
                 Log.e(tag, "Caught exception. Passing on to client. Data: " + toLogString(message), e);
-                Message replyMessage = createReply(message, InvocationResult.exception(e));
+                Message replyMessage = TransportMessages.createInvocationReply(message, InvocationResult.exception(e));
                 message.replyTo.send(replyMessage);
             } catch (Exception e2) {
                 Log.e(tag, "Caught exception and could not send it as reply", e);
@@ -59,7 +59,7 @@ public class MessengerServer extends Handler implements CallbackHandler {
     private void handleInvocation(Message message) throws Throwable {
         Invocation invocation = TransportMessages.extractInvocation(message);
         Object result = invokeService(invocation);
-        Message replyMessage = createReply(message, InvocationResult.normalResult(result));
+        Message replyMessage = TransportMessages.createInvocationReply(message, InvocationResult.normalResult(result));
         message.replyTo.send(replyMessage);
     }
 
@@ -84,7 +84,8 @@ public class MessengerServer extends Handler implements CallbackHandler {
         }
     }
 
-    public void sendCallback(CallbackEvent callback) {
+    @Override
+    public void publishEvent(CallbackEvent callback) {
         if (callbackListenerClients.containsKey(callback.getClass())) {
             for (Messenger client : callbackListenerClients.get(callback.getClass())) {
                 Message callbackMessage = TransportMessages.createCallback(callback);
@@ -97,10 +98,6 @@ public class MessengerServer extends Handler implements CallbackHandler {
                 }
             }
         }
-    }
-
-    private Message createReply(Message invocationMessage, InvocationResult result) {
-        return TransportMessages.createInvocationReply(invocationMessage, result);
     }
 
     private Object invokeService(Invocation invocation) throws Throwable {

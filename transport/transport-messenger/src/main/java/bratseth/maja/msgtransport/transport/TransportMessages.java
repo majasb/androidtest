@@ -3,13 +3,16 @@ package bratseth.maja.msgtransport.transport;
 import android.os.Message;
 import bratseth.maja.androidtest.service.CallbackEvent;
 
-public class TransportMessages {
+public final class TransportMessages {
 
     public static final int MSG_INVOKE = 0;
     public static final int MSG_REPLY = 1;
     public static final int MSG_REGISTER_LISTENER = 3;
     public static final int MSG_UNREGISTER_LISTENER = 4;
     public static final int MSG_CALLBACK = 5;
+
+    private TransportMessages() {
+    }
 
     public static Message createInvocation(Invocation invocation, long resultHandlerId) {
         Message msg = Message.obtain();
